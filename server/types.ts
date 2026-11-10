@@ -13,6 +13,12 @@ export const MailSchema = z.object({
   readAt: z.string().nullable(),
   nudgedAt: z.string().nullable(),
   bouncedAt: z.string().nullable(),
+  /**
+   * When a human opened the mail on the Mail screen. Separate from `readAt`, which only the
+   * recipient agent sets: a human looking does not count as the agent having read it.
+   * Absent in mail written before the screen existed.
+   */
+  seenAt: z.string().nullable().default(null),
 });
 export type Mail = z.infer<typeof MailSchema>;
 

@@ -19,8 +19,14 @@ export function normalize(value: string, kind: "name" | "role"): string {
 export class Registry {
   private readonly entries = new Map<string, Registration>();
   private readonly queue = new Queue();
+  private changes = 0;
 
   constructor(readonly file: string) {}
+
+  /** Bumped on every change, like `MailStore.revision`. */
+  get revision(): number {
+    return this.changes;
+  }
 
   async init(): Promise<void> {
     await mkdir(path.dirname(this.file), { recursive: true });
@@ -58,6 +64,7 @@ export class Registry {
     return this.queue.run(async () => {
       if (entry.name === null && entry.roles.length === 0) this.entries.delete(entry.agentId);
       else this.entries.set(entry.agentId, entry);
+      this.changes += 1;
       await this.save();
     });
   }
@@ -65,6 +72,7 @@ export class Registry {
   remove(agentId: string): Promise<boolean> {
     return this.queue.run(async () => {
       if (!this.entries.delete(agentId)) return false;
+      this.changes += 1;
       await this.save();
       return true;
     });
