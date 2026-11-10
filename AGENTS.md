@@ -9,6 +9,7 @@ A decision is significant when it changes any of:
 
 - the architecture, or how the plugin talks to Paseo (APIs, hooks, polling or events, RPCs)
 - the mailbox model, mail storage, addressing or delivery rules, or the agent tools' contract
+- a UI surface (a new panel, button or screen), not a restyle of an existing one
 - compatibility, dependencies, packaging, or the release and versioning process
 - the repository's development workflow (CI rules, worktree setup)
 - a rule that an earlier decision set (say which one it supersedes)
@@ -26,6 +27,13 @@ Bug fixes, refactors, copy edits and visual tweaks need no ADR.
   statement is fine.
 - `docs/adrs/2026-11-10-ci-and-release-rules.md` sets the CI checks, branch protection and
   release rules. The plugin design ADRs live alongside it.
+
+## Client UI
+
+- `client/` must use React Native primitives and the SDK's UI components only; CI's mobile
+  audit (in `Lint`) fails on DOM elements and browser globals.
+- Every user-visible string goes in `client/i18n.ts` with its French (`fr`) and Simplified
+  Chinese (`zh-CN`) text.
 
 ## Development workflow
 
