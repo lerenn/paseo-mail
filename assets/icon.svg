@@ -1,0 +1,6 @@
+<!-- Mail icon: an envelope drawn with the Playbooks icon's style. Two colors, flat. Render with resvg (npx @resvg/resvg-js-cli, fit width 512) to icon.png -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#2F6BF2"/>
+  <rect x="104" y="148" width="304" height="216" rx="36" fill="none" stroke="#FFFFFF" stroke-width="40" stroke-linejoin="round"/>
+  <path d="M124 176 L256 276 L388 176" fill="none" stroke="#FFFFFF" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
