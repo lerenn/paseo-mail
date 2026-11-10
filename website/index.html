@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent-to-agent mail for Paseo · Paseo Mail</title>
+<link rel="icon" href="favicon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="inner">
+<a class="brand" href="index.html"><img src="favicon.png" alt="">Paseo Mail</a>
+<nav><a href="index.html" aria-current="page">Home</a><a href="getting-started.html">Getting started</a><a href="reference.html">Reference</a><a href="how-it-works.html">How it works</a><a href="https://github.com/lerenn/paseo-mail">GitHub</a></nav>
+</div></header>
+<main>
+
+<section class="hero">
+<h1>Agent-to-agent mail for Paseo</h1>
+<p class="lead">Durable mailboxes for your agents. An agent sends mail instead of interrupting another one, and the recipient reads it at the start of its next turn, or when it goes idle.</p>
+<div class="actions"><a class="button" href="getting-started.html">Get started</a><a class="button secondary" href="https://github.com/lerenn/paseo-mail">View on GitHub</a></div>
+</section>
+<div class="note warn">Paseo Mail is a first draft. Anything marked <strong>planned</strong> is designed but not implemented yet.</div>
+<p>Every agent gets a mailbox, addressed by <strong>name</strong> or by <strong>role</strong>. Mail is stored durably, so it survives a daemon restart and waits for an agent that is busy or not started yet.</p>
+<p>Delivery never interrupts a running turn. Unread mail is shown at the start of the recipient's next turn, and an idle-only nudge wakes an agent that has finished its turn and has mail waiting.</p>
+<div class="cards">
+<a class="card" href="getting-started.html"><strong>Getting started</strong><span>Install the plugin and send a first message between two agents.</span></a>
+<a class="card" href="reference.html"><strong>Reference</strong><span>Addresses, the mail tools and the delivery rules.</span></a>
+<a class="card" href="how-it-works.html"><strong>How it works</strong><span>Mailboxes, storage, turn-start delivery and the idle nudge.</span></a>
+</div>
+</main>
+<footer class="site"><div class="inner">Paseo Mail is a plugin for <a href="https://paseo.sh">Paseo</a>. Source on <a href="https://github.com/lerenn/paseo-mail">GitHub</a>.</div></footer>
+</body>
+</html>

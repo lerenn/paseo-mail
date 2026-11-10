@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# The job names below are the required status checks of branch protection. Renaming a
+# job breaks protection, so keep them stable (see docs/adrs/2026-11-10-ci-and-release-rules.md).
+# Until the plugin source exists, each job detects an empty project (no package.json, or no
+# matching npm script) and passes without doing anything.
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - id: project
+        run: |
+          if [ -f package.json ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "::notice::No package.json yet; skipping"; fi
+      - if: steps.project.outputs.present == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - if: steps.project.outputs.present == 'true'
+        run: npm ci
+      - if: steps.project.outputs.present == 'true'
+        run: npm run typecheck --if-present
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - id: project
+        run: |
+          if [ -f package.json ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "::notice::No package.json yet; skipping"; fi
+      - if: steps.project.outputs.present == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - if: steps.project.outputs.present == 'true'
+        run: npm ci
+      - if: steps.project.outputs.present == 'true'
+        run: npm run lint --if-present
+      - name: Mobile audit (client code uses React Native primitives only)
+        run: |
+          [ -d client ] || { echo "No client/ yet; skipping"; exit 0; }
+          if grep -rnE '(document|window|navigator)\.|localStorage|className=|onClick=|<(div|span|button|p|a|img|input|ul|li|h[1-6])[ >/]' client/; then
+            echo "::error::client/ must use React Native primitives only"
+            exit 1
+          fi
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - id: project
+        run: |
+          if [ -f package.json ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "::notice::No package.json yet; skipping"; fi
+      - if: steps.project.outputs.present == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - if: steps.project.outputs.present == 'true'
+        run: npm ci
+      - if: steps.project.outputs.present == 'true'
+        run: npm test --if-present
+
+  manifest:
+    name: Plugin manifest
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: node .github/scripts/check-manifest.mjs
+
+  version:
+    name: Version bump
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Shipped files changed, so package.json version must increase
+        if: github.event_name == 'pull_request'
+        run: node .github/scripts/check-version.mjs "${{ github.event.pull_request.base.sha }}"

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started · Paseo Mail</title>
+<link rel="icon" href="favicon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="inner">
+<a class="brand" href="index.html"><img src="favicon.png" alt="">Paseo Mail</a>
+<nav><a href="index.html">Home</a><a href="getting-started.html" aria-current="page">Getting started</a><a href="reference.html">Reference</a><a href="how-it-works.html">How it works</a><a href="https://github.com/lerenn/paseo-mail">GitHub</a></nav>
+</div></header>
+<main>
+
+<h1>Getting started</h1>
+<p class="lead">Install the plugin and have one agent send mail to another.</p>
+<div class="note warn">Paseo Mail is a first draft. Anything marked <strong>planned</strong> is designed but not implemented yet.</div>
+<h2>Requirements</h2>
+<ul>
+<li>Paseo with plugins enabled on the daemon: Settings → Plugins → Enable plugins, or <code>pluginsEnabled: true</code> in the daemon's <code>config.json</code>.</li>
+</ul>
+<div class="note warn">Plugins are trusted, unsandboxed code that runs on the daemon machine.</div>
+<h2>1. Install the plugin</h2>
+<p>The plugin installs from Git. Pin a release tag:</p>
+<pre><code>paseo plugin install https://github.com/lerenn/paseo-mail.git --ref v0.1.0</code></pre>
+<p>Upgrade with <code>paseo plugin update paseo-mail --ref &lt;tag&gt;</code> and read the release notes first. Check that <code>paseo plugin ls</code> shows <code>paseo-mail</code> as <code>running</code>.</p>
+<p>To develop it, install from a local checkout (not from a Paseo worktree, which can be archived), then reload after each change:</p>
+<pre><code>git clone https://github.com/lerenn/paseo-mail
+cd paseo-mail &amp;&amp; npm install
+paseo plugin install "$PWD"
+paseo plugin reload paseo-mail</code></pre>
+<h2>2. Send a first message</h2>
+<p>Ask an agent to send mail to another by name or role:</p>
+<pre><code>Send a mail to the reviewer: "The PR is ready, please review it."</code></pre>
+<p>The agent calls <code>mail_send</code>. The reviewer sees the mail at the start of its next turn, or gets a nudge if it is idle, and answers with <code>mail_reply</code>.</p>
+</main>
+<footer class="site"><div class="inner">Paseo Mail is a plugin for <a href="https://paseo.sh">Paseo</a>. Source on <a href="https://github.com/lerenn/paseo-mail">GitHub</a>.</div></footer>
+</body>
+</html>
