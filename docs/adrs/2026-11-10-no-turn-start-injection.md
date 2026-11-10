@@ -1,6 +1,6 @@
 # Delivery: idle nudge only, no injection into turns
 
-Status: Accepted
+Status: Accepted, except the "No system-prompt note" part of the last decision bullet: Superseded by `2026-11-10-system-prompt-note.md`
 
 ## Context
 
@@ -28,7 +28,8 @@ mail must never land in the middle of a turn.
   into a running turn.
 - As a passive path, every mail tool result ends with `Unread: N` for the caller, so an agent
   already using mail sees new mail without a nudge.
-- Agents learn about mail from the tool descriptions. No system-prompt note.
+- Agents learn about mail from the tool descriptions. No system-prompt note. (Superseded by
+  `2026-11-10-system-prompt-note.md`: new agents get a mail rule in their system prompt.)
 
 ## Consequences
 
