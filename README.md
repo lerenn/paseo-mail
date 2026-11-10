@@ -16,13 +16,17 @@ Requires Paseo 0.15.0 or later.
 
 1. **Register.** An agent claims an address with `mail_register`: a unique `name`, and any
    number of shared `roles`. Agent ids change when agents are replaced, so prefer names; an id
-   is only for an agent that has not registered yet.
+   is only for an agent that has not registered yet. **An agent must register a name before it can
+   read its mail** (a role alone does not count): until then `mail_list` and `mail_read` refuse and say how
+   many mails are waiting. The mail is kept and shows up as soon as it registers.
 2. **Send.** `mail_send` takes a name, `role:<role>` or `agent:<agent id>` (or a list of them). `agent:<id>` reaches a
    live, non-archived agent with no registration, such as a child you just created. A role reaches its
    holders in the sender's workspace, else its project, else anywhere. An address with no
    live holder is an error, and nothing is sent.
 3. **Deliver.** When the recipient is idle, the plugin sends it one line:
-   `[paseo-mail] You have N unread mails. Call mail_list to see them.` A recipient in a turn
+   `[paseo-mail] You have N unread mails. Call mail_list to see them.` (An agent with no name gets a
+   different line: it has N mails it cannot read until it registers, so it should `mail_register`, read them, and
+   `mail_reply` so the sender learns its alias.) A recipient in a turn
    is told when the turn ends. It is never woken again for mail it has read or was already
    told about. Only new mail wakes it.
 4. **Read and reply.** `mail_list`, `mail_read` and `mail_reply`. Every mail tool result ends
@@ -34,7 +38,7 @@ start. See `docs/adrs/2026-11-10-no-turn-start-injection.md`.
 ## The mail rule
 
 When the plugin is installed, every new agent gets a short rule appended to its system prompt
-(after whatever Paseo or other plugins set): claim a name with `mail_register` first; use
+(after whatever Paseo or other plugins set): claim a name with `mail_register` first (mail can only be read after registering), and prefer names over `agent:<id>` once known; use
 `mail_send` / `mail_reply` for all non-urgent communication with other agents (updates,
 results, questions, handoffs, FYIs); do not interrupt another agent with a direct prompt
 unless it is urgent (it is about to do something harmful, or the work is blocked right now);
@@ -73,9 +77,9 @@ mail change, shows one pane at a time on phones, and is translated into French a
 | --- | --- | --- |
 | `mail_register` | `name?`, `roles?` | Claim or change your name and roles. `name: ""` releases the name, `roles: []` clears the roles, and no arguments shows your registration. |
 | `mail_directory` | none | List the registered names and roles. |
-| `mail_send` | `to`, `subject`, `body` | Send mail to a name, `role:<role>`, `agent:<agent id>`, or a list of them. |
-| `mail_list` | `unread_only?`, `limit?` | List your mail, newest first, without bodies. |
-| `mail_read` | `id` | Read one mail and mark it read. |
+| `mail_send` | `to`, `subject`, `body` | Send mail to a name, `role:<role>`, `agent:<agent id>`, or a list of them. No name needed to send; the result says to use a recipient's name from now on, and warns if you have none. |
+| `mail_list` | `unread_only?`, `limit?` | List your mail, newest first, without bodies. Needs a registered name. |
+| `mail_read` | `id` | Read one mail and mark it read. Needs a registered name. |
 | `mail_reply` | `id`, `body` | Reply to the sender, in the same thread. |
 
 On Claude the tools show up as `mcp__paseo__mail_*`.

@@ -5,7 +5,7 @@ describe("withMailNote", () => {
   it("is a short rule naming the tools", () => {
     expect(MAIL_NOTE.split("\n").length).toBeGreaterThanOrEqual(4);
     expect(MAIL_NOTE.split("\n").length).toBeLessThanOrEqual(5);
-    for (const word of ["mail_register", "mail_send", "mail_reply", "Unread: N", "MUST NOT", "send_agent_prompt"]) expect(MAIL_NOTE).toContain(word);
+    for (const word of ["mail_register", "mail_send", "mail_reply", "Unread: N", "MUST NOT", "send_agent_prompt", "only after registering", "Prefer a name over agent:<id>"]) expect(MAIL_NOTE).toContain(word);
   });
 
   it("keeps an existing prompt and appends the note once", () => {
