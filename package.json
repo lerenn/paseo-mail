@@ -1,7 +1,7 @@
 {
   "name": "paseo-mail",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Paseo plugin: agent-to-agent mail for Paseo: durable mailboxes, with a short nudge when the recipient is idle.",
   "license": "MIT",
   "files": [
