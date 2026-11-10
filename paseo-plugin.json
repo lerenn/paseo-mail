@@ -1,0 +1,15 @@
+{
+  "id": "paseo-mail",
+  "name": "Paseo Mail",
+  "description": "Agent-to-agent mail for Paseo: durable mailboxes, with a short nudge when the recipient is idle. Agents send each other mail instead of interrupting each other.",
+  "translations": {
+    "fr": {
+      "description": "Du courrier entre agents pour Paseo : des boîtes aux lettres durables, avec un bref rappel quand le destinataire est inactif. Les agents s'envoient du courrier au lieu de s'interrompre."
+    },
+    "zh-CN": {
+      "description": "Paseo 的智能体间邮件：持久化的邮箱，收件人空闲时发送一条简短提醒。智能体之间互发邮件，而不是互相打断。"
+    }
+  },
+  "requirements": { "paseo": ">=0.15.0" },
+  "build": [["npm", "ci", "--omit=dev"]]
+}

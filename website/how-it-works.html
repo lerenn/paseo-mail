@@ -15,17 +15,22 @@
 <main>
 
 <h1>How it works</h1>
-<p class="lead">Mailboxes, storage, and the two ways mail reaches an agent.</p>
-<div class="note warn">Paseo Mail is a first draft. Anything marked <strong>planned</strong> is designed but not implemented yet.</div>
+<p class="lead">Mailboxes, the registry, storage, and how mail reaches an agent.</p>
 <h2>Mailboxes</h2>
-<p>Each agent has a mailbox, resolved from its name or its role at send time. Senders do not need to know agent ids, and do not wait for an answer.</p>
+<p>Each agent has a mailbox. Senders do not need to know agent ids, and do not wait for an answer.</p>
+<h2>Names and roles</h2>
+<p>Agents claim addresses with <code>mail_register</code>: one unique <strong>name</strong>, and any number of <strong>roles</strong> that several agents can share. Archiving an agent releases its name, so a replacement can claim it. Addresses are resolved when mail is sent; an address with no live holder is an error.</p>
 <h2>Durable mail</h2>
-<p>Messages are written to storage on the daemon before <code>mail_send</code> returns, so a busy agent, an agent that has not started, or a daemon restart does not lose them. <span class="file">planned</span></p>
+<p>Messages are written to storage on the daemon before <code>mail_send</code> returns, so a busy agent, an agent that has not started, or a daemon restart does not lose them. If a recipient is archived before reading, its unread mail goes back to the sender.</p>
 <h2>Delivery</h2>
-<ol>
-<li><strong>Turn start.</strong> When an agent's turn begins, the plugin adds its unread mail to the context. <span class="file">planned</span></li>
-<li><strong>Idle nudge.</strong> When an agent is idle with unread mail, the plugin sends a short nudge so it reads its mailbox. The nudge is idle-only: while a turn is running nothing is sent, and the mail waits for the next turn start. <span class="file">planned</span></li>
-</ol>
+<ul>
+<li><strong>Idle nudge.</strong> When an agent is idle with unread mail it has not been told about, the plugin sends it one line: <code>[paseo-mail] You have N unread mails. Call mail_list to see them.</code> While a turn is running nothing is sent; the nudge goes out when the turn ends.</li>
+<li><strong>Unread count.</strong> Every mail tool result ends with <code>Unread: N</code>, so an agent already using mail sees new mail without a nudge.</li>
+</ul>
+<p>Mail is not added to a turn as it starts: Paseo's plugin hooks cannot add text to a starting turn.</p>
+<h2>The mail rule</h2>
+<p>Every new agent gets a short rule appended to its system prompt, after whatever Paseo or other plugins set. It must claim a name with <code>mail_register</code> first, and use <code>mail_send</code> and <code>mail_reply</code> for all non-urgent communication with other agents: updates, results, questions, handoffs, FYIs. It must not interrupt another agent with a direct prompt unless it is urgent: the other agent is about to do something harmful, or the work is blocked right now and cannot wait for its next turn. It reads its mail when nudged or when <code>Unread: N</code> shows.</p>
+<p>The rule is enforced only by the prompt: the plugin cannot block direct prompts between agents. Agents created before the plugin was installed do not get it, but still have the tools, the nudge and the unread count.</p>
 <h2>Why not interrupt?</h2>
 <p>Interrupting a running turn throws away the agent's work in progress. Mail lets agents coordinate without that cost.</p>
 </main>

@@ -16,7 +16,6 @@
 
 <h1>Reference</h1>
 <p class="lead">Addresses, tools and delivery rules.</p>
-<div class="note warn">Paseo Mail is a first draft. Anything marked <strong>planned</strong> is designed but not implemented yet.</div>
 <div class="toc"><ul>
 <li><a href="#addresses">Addresses</a></li>
 <li><a href="#tools">Tools</a></li>
@@ -24,22 +23,27 @@
 </ul></div>
 <h2 id="addresses">Addresses</h2>
 <ul>
-<li>By <strong>name</strong>: the agent's name. One recipient.</li>
-<li>By <strong>role</strong>: every agent that has the role. <span class="file">planned</span> exact addressing syntax is not final.</li>
+<li><code>&lt;name&gt;</code>: the one live agent that registered the name. Names are unique.</li>
+<li><code>role:&lt;role&gt;</code>: every live agent holding the role in the sender's workspace, else in its project, else anywhere. Each gets its own copy.</li>
+<li>Names and roles are lower-case: 1–64 characters <code>a-z</code>, <code>0-9</code>, <code>.</code>, <code>_</code> or <code>-</code>.</li>
 </ul>
 <h2 id="tools">Tools</h2>
 <table>
-<tr><th>Tool</th><th>What it does</th><th>Status</th></tr>
-<tr><td><code>mail_send</code></td><td>Send a message to a name or a role.</td><td>planned</td></tr>
-<tr><td><code>mail_list</code></td><td>List mail in your mailbox, unread first.</td><td>planned</td></tr>
-<tr><td><code>mail_read</code></td><td>Read a message and mark it read.</td><td>planned</td></tr>
-<tr><td><code>mail_reply</code></td><td>Reply to a message; the reply goes to its sender.</td><td>planned</td></tr>
+<tr><th>Tool</th><th>Input</th><th>What it does</th></tr>
+<tr><td><code>mail_register</code></td><td><code>name?</code>, <code>roles?</code></td><td>Claim or change your name and roles. <code>name: ""</code> releases the name, <code>roles: []</code> clears the roles, and no arguments shows your registration.</td></tr>
+<tr><td><code>mail_directory</code></td><td>none</td><td>List registered names and roles.</td></tr>
+<tr><td><code>mail_send</code></td><td><code>to</code>, <code>subject</code>, <code>body</code></td><td>Send mail to a name, <code>role:&lt;role&gt;</code>, or a list of them.</td></tr>
+<tr><td><code>mail_list</code></td><td><code>unread_only?</code>, <code>limit?</code></td><td>List your mail, newest first, without bodies.</td></tr>
+<tr><td><code>mail_read</code></td><td><code>id</code></td><td>Read a mail and mark it read.</td></tr>
+<tr><td><code>mail_reply</code></td><td><code>id</code>, <code>body</code></td><td>Reply to the sender, in the same thread.</td></tr>
 </table>
 <h2 id="delivery">Delivery</h2>
 <ul>
-<li><strong>At turn start</strong> (planned): unread mail is shown to the agent when its next turn begins.</li>
-<li><strong>Idle nudge</strong> (planned): when an agent is idle and has unread mail, the plugin sends it a short nudge. It is sent only while the agent is idle and never interrupts a running turn.</li>
-<li><strong>Durable</strong> (planned): mail is stored on the daemon and survives restarts. It stays until read.</li>
+<li><strong>Idle nudge</strong>: when an agent is idle and has unread mail it was not told about, the plugin sends it a one-line nudge. It never interrupts a running turn, and never wakes an agent again for mail it has read or was already told about.</li>
+<li><strong>Unread count</strong>: every mail tool result ends with <code>Unread: N</code>.</li>
+<li><strong>Durable</strong>: mail is stored in <code>$PASEO_HOME/plugin-data/paseo-mail/</code> and survives restarts.</li>
+<li><strong>Mail rule</strong>: new agents get a short rule in their system prompt: use mail for all non-urgent communication with other agents, and interrupt with a direct prompt only when it is urgent. It is enforced only by the prompt, and agents created before the plugin was installed do not get it.</li>
+<li><strong>Bounces</strong>: unread mail to an agent that is archived goes back to its sender as <code>Returned: &lt;subject&gt;</code>.</li>
 </ul>
 </main>
 <footer class="site"><div class="inner">Paseo Mail is a plugin for <a href="https://paseo.sh">Paseo</a>. Source on <a href="https://github.com/lerenn/paseo-mail">GitHub</a>.</div></footer>

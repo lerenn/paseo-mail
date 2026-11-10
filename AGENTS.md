@@ -8,7 +8,7 @@ as the change it describes.
 A decision is significant when it changes any of:
 
 - the architecture, or how the plugin talks to Paseo (APIs, hooks, polling or events, RPCs)
-- the mailbox model, mail storage, or the agent tools' contract
+- the mailbox model, mail storage, addressing or delivery rules, or the agent tools' contract
 - compatibility, dependencies, packaging, or the release and versioning process
 - the repository's development workflow (CI rules, worktree setup)
 - a rule that an earlier decision set (say which one it supersedes)
