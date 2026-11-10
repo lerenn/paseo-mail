@@ -1,6 +1,6 @@
 import { PluginTranslationRuntime } from "@getpaseo/plugin/client/host";
 import { describe, expect, it } from "vitest";
-import { mailboxLabel, senderLabel, shortDate, threadCounts } from "./format";
+import { groupThreads, mailboxLabel, senderLabel, shortDate } from "./format";
 import { messages } from "./i18n";
 
 describe("labels", () => {
@@ -23,10 +23,15 @@ describe("labels", () => {
     expect(shortDate("not a date", now)).toBe("not a date");
   });
 
-  it("counts the mails of each thread", () => {
-    expect([...threadCounts([{ threadId: "a" }, { threadId: "b" }, { threadId: "a" }])]).toEqual([
-      ["a", 2],
-      ["b", 1],
+  it("groups a newest-first list by thread, keeping the newest mail of each", () => {
+    const groups = groupThreads([
+      { id: "3", threadId: "a" },
+      { id: "2", threadId: "b" },
+      { id: "1", threadId: "a" },
+    ]);
+    expect(groups.map((group) => [group.threadId, group.latest.id, group.count, group.ids])).toEqual([
+      ["a", "3", 2, ["3", "1"]],
+      ["b", "2", 1, ["2"]],
     ]);
   });
 });
