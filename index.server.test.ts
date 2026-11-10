@@ -1,6 +1,7 @@
 import type { PluginServerContext } from "@getpaseo/plugin/server";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import contribute from "./index.server";
+import { MAIL_NOTE } from "./server/system-prompt";
 import { tempDir } from "./test/fixtures";
 
 type Handler = (payload: unknown, context: unknown) => Promise<unknown>;
@@ -32,11 +33,30 @@ describe("contribute", () => {
     else process.env.PASEO_HOME = previousHome;
   });
 
+  it("appends the mailbox note to a new agent's system prompt, once", async () => {
+    const hooks = new Map<string, Handler>();
+    const server = { addHook: (name: string, handler: Handler) => (hooks.set(name, handler), () => hooks.delete(name)) } as unknown as PluginServerContext;
+    const cleanup = contribute(server) as () => Promise<void>;
+    const create = hooks.get("agent.create.before")!;
+    const context = { paseo: {}, signal: new AbortController().signal };
+    const config = { provider: "claude", cwd: "/tmp", systemPrompt: "Set by another plugin." };
+    const result = (await create({ request: { config, env: { A: "1" } } }, context)) as { config: typeof config; env: unknown };
+    expect(result.config.systemPrompt).toBe(`Set by another plugin.\n\n${MAIL_NOTE}`);
+    expect(result.config).toMatchObject({ provider: "claude", cwd: "/tmp" });
+    expect(result.env).toEqual({ A: "1" });
+    expect(await create({ request: result }, context)).toBeUndefined();
+    expect(((await create({ request: { config: { provider: "claude", cwd: "/tmp" } } }, context)) as { config: typeof config }).config.systemPrompt).toBe(MAIL_NOTE);
+    expect(await create({ request: { config: { ...config, internal: true } } }, context)).toBeUndefined();
+    expect(await create({ request: { config: { ...config, systemPrompt: 7 } } }, context)).toBeUndefined();
+    expect(await create({ request: null }, context)).toBeUndefined();
+    await cleanup();
+  });
+
   it("adds the mail tools to interactive sessions and nudges after a turn", async () => {
     const hooks = new Map<string, Handler>();
     const server = { addHook: (name: string, handler: Handler) => (hooks.set(name, handler), () => hooks.delete(name)) } as unknown as PluginServerContext;
     const cleanup = contribute(server) as () => Promise<void>;
-    expect([...hooks.keys()].sort()).toEqual(["agent.archive.after", "agent.open.before", "agent.turn.after", "agent.turn.before"]);
+    expect([...hooks.keys()].sort()).toEqual(["agent.archive.after", "agent.create.before", "agent.open.before", "agent.turn.after", "agent.turn.before"]);
 
     const sent: { id: string; text: string }[] = [];
     const context = { paseo: fakeApi(sent), signal: new AbortController().signal };

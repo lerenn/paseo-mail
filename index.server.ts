@@ -5,6 +5,7 @@ import { PaseoAdapter, type PaseoApi } from "./server/paseo";
 import { defaultDataDir } from "./server/paths";
 import { Registry } from "./server/registry";
 import { MailStore } from "./server/store";
+import { withMailNote } from "./server/system-prompt";
 import { mailTools } from "./server/tools";
 
 export default function contribute(server: PluginServerContext) {
@@ -31,6 +32,19 @@ export default function contribute(server: PluginServerContext) {
   }));
 
   const unhook = [
+    // New agents get the mail rule appended to their system prompt. A throw here would
+    // fail the agent's creation, so any problem leaves the request untouched.
+    server.addHook("agent.create.before", async ({ request }) => {
+      try {
+        if (request.config.internal) return;
+        const systemPrompt = withMailNote(request.config.systemPrompt);
+        if (systemPrompt === null || systemPrompt === request.config.systemPrompt) return;
+        return { ...request, config: { ...request.config, systemPrompt } };
+      } catch (error) {
+        console.error("[paseo-mail] could not add the mailbox note:", error);
+        return;
+      }
+    }),
     server.addHook("agent.open.before", async ({ request }, context) => {
       if (request.purpose === "history") return;
       await enter(context.paseo);
