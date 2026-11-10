@@ -1,10 +1,10 @@
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { Mailer, type MailerOptions } from "./mailer";
-import { Registry } from "./registry";
-import { MailStore } from "./store";
-import type { AgentInfo, Caller, PaseoPort } from "./types";
+import { Mailer, type MailerOptions } from "../server/mailer";
+import { Registry } from "../server/registry";
+import { MailStore } from "../server/store";
+import type { AgentInfo, Caller, PaseoPort } from "../server/types";
 
 /** An in-memory daemon: agents with a status, workspaces with a project, recorded sends. */
 export class FakePaseo implements PaseoPort {

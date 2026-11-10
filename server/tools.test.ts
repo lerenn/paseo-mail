@@ -1,6 +1,6 @@
 import type { AgentToolContext } from "@getpaseo/plugin/server";
 import { afterEach, describe, expect, it } from "vitest";
-import { setup } from "./fixtures";
+import { setup } from "../test/fixtures";
 import type { Mailer } from "./mailer";
 import { mailTools, TOOL_NAMES } from "./tools";
 

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { setup } from "./fixtures";
+import { setup } from "../test/fixtures";
 import { nudgeText, type Mailer } from "./mailer";
 
 let current: Mailer | null = null;
