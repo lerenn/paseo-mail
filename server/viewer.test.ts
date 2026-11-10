@@ -36,6 +36,21 @@ describe("mailboxes", () => {
     expect(boxes[1]).toMatchObject({ agentId: "bob-id", total: 2, unread: 1, unseen: 2, bounced: 0, archived: false });
   });
 
+  it("lists an unregistered recipient of an agent:<id> address by its title, not the address", async () => {
+    const { mailer, viewer, paseo, alice } = await world();
+    paseo.add("child-id", { title: "Child task" });
+    await mailer.send(alice, ["agent:child-id"], "Task", "do it");
+    const boxes = await viewer.mailboxes();
+    const child = boxes.find((box) => box.agentId === "child-id")!;
+    expect(child).toMatchObject({ name: null, title: "Child task", roles: [], total: 1, unread: 1, archived: false });
+    expect(viewer.list("child-id").mails[0]).toMatchObject({ subject: "Task", to: { agentId: "child-id", address: "agent:child-id" } });
+    // Once archived the mailbox stays, still without the address as a name.
+    paseo.archive("child-id");
+    await mailer.onArchived("child-id");
+    const after = (await viewer.mailboxes()).find((box) => box.agentId === "child-id")!;
+    expect(after).toMatchObject({ name: null, archived: true, bounced: 1 });
+  });
+
   it("keeps an archived agent's mailbox, last, under its last name, with its returned mail", async () => {
     const { mailer, viewer, paseo, alice, bob } = await world();
     await mailer.send(bob, ["alice"], "From bob", "x");

@@ -5,7 +5,6 @@ import type { MailStore } from "./store";
 import { UserError, type AgentInfo, type Mail, type PaseoPort } from "./types";
 
 const PREVIEW_LENGTH = 140;
-const ROLE_PREFIX = "role:";
 
 export function header(mail: Mail): MailHeader {
   const { body, ...rest } = mail;
@@ -59,7 +58,7 @@ export class MailViewer {
         const name =
           registration?.name ??
           outbox.find((mail) => mail.from.name)?.from.name ??
-          inbox.find((mail) => !mail.to.address.toLowerCase().startsWith(ROLE_PREFIX))?.to.address.toLowerCase() ??
+          inbox.find((mail) => !/^(role|agent):/i.test(mail.to.address))?.to.address.toLowerCase() ??
           null;
         return {
           agentId,
