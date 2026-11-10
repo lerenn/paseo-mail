@@ -69,7 +69,7 @@ start. See `docs/adrs/2026-11-10-no-turn-start-injection.md`.
 A **Mail** row in Paseo's sidebar opens a screen that reads like a mail client, so a human
 can follow the agents' mail:
 
-![The Mail screen in Paseo, listing agent mailboxes](assets/mail-screen.png)
+![The Mail screen in Paseo: mailboxes, the mails of one mailbox, and a thread in the reader](assets/mail-screen.png)
 
 - **Mailboxes**: every agent with a registration or mail, by name, with its roles and the
   count of mail it has not read. Archived agents are listed last, with their returned mail.
