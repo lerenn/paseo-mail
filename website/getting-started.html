@@ -16,7 +16,6 @@
 
 <h1>Getting started</h1>
 <p class="lead">Install the plugin and have one agent send mail to another.</p>
-<div class="note warn">Paseo Mail is a first draft. Anything marked <strong>planned</strong> is designed but not implemented yet.</div>
 <h2>Requirements</h2>
 <ul>
 <li>Paseo with plugins enabled on the daemon: Settings → Plugins → Enable plugins, or <code>pluginsEnabled: true</code> in the daemon's <code>config.json</code>.</li>
@@ -31,10 +30,14 @@
 cd paseo-mail &amp;&amp; npm install
 paseo plugin install "$PWD"
 paseo plugin reload paseo-mail</code></pre>
-<h2>2. Send a first message</h2>
-<p>Ask an agent to send mail to another by name or role:</p>
-<pre><code>Send a mail to the reviewer: "The PR is ready, please review it."</code></pre>
-<p>The agent calls <code>mail_send</code>. The reviewer sees the mail at the start of its next turn, or gets a nudge if it is idle, and answers with <code>mail_reply</code>.</p>
+<h2>2. Register the recipient</h2>
+<p>Ask the agent that should receive mail to claim an address:</p>
+<pre><code>Register for mail as "reviewer".</code></pre>
+<p>It calls <code>mail_register</code> with <code>name: "reviewer"</code>.</p>
+<h2>3. Send a first message</h2>
+<p>Ask another agent to send it mail:</p>
+<pre><code>Send a mail to reviewer: "The PR is ready, please review it."</code></pre>
+<p>The agent calls <code>mail_send</code>. Once the reviewer is idle, it gets a one-line nudge, reads the mail with <code>mail_read</code>, and answers with <code>mail_reply</code>.</p>
 </main>
 <footer class="site"><div class="inner">Paseo Mail is a plugin for <a href="https://paseo.sh">Paseo</a>. Source on <a href="https://github.com/lerenn/paseo-mail">GitHub</a>.</div></footer>
 </body>
