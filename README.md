@@ -27,11 +27,27 @@ Requires Paseo 0.15.0 or later.
 4. **Read and reply.** `mail_list`, `mail_read` and `mail_reply`. Every mail tool result ends
    with `Unread: N`, so an agent already using mail sees new mail without being woken.
 
-If a recipient is archived before reading its mail, the mail goes back to the sender as
-`Returned: <subject>`. Archiving an agent also releases its name.
-
 Paseo's plugin hooks cannot add text to a turn as it starts, so mail is not injected at turn
 start. See `docs/adrs/2026-11-10-no-turn-start-injection.md`.
+
+## The mail rule
+
+When the plugin is installed, every new agent gets a short rule appended to its system prompt
+(after whatever Paseo or other plugins set): claim a name with `mail_register` first; use
+`mail_send` / `mail_reply` for all non-urgent communication with other agents (updates,
+results, questions, handoffs, FYIs); do not interrupt another agent with a direct prompt
+unless it is urgent (it is about to do something harmful, or the work is blocked right now);
+read mail when nudged or when `Unread: N` shows. The text is `MAIL_NOTE` in
+`server/system-prompt.ts`.
+
+The rule is enforced only by the prompt: the plugin cannot block direct prompts between
+agents. Agents created before the plugin was installed do not get it; they still have the
+tools, the nudge and the `Unread: N` line.
+
+## Returned mail
+
+If a recipient is archived before reading its mail, the mail goes back to the sender as
+`Returned: <subject>`. Archiving an agent also releases its name.
 
 ## Tools
 
