@@ -50,17 +50,19 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
     setMailId(null);
   };
 
-  const header = (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: layout.compact ? 12 : 18, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>
-      {layout.compact && agentId !== null ? (
-        <IconButton theme={theme} icon="ChevronLeft" label={t("back")} onPress={() => (mailId !== null ? setMailId(null) : setAgentId(null))} />
-      ) : null}
-      <Text accessibilityRole="header" numberOfLines={1} style={{ flex: 1, color: theme.colors.foreground, fontSize: 18, fontWeight: "700" }}>
-        {layout.compact && box ? mailboxLabel(box, t("mailboxes.noName")) : t("title")}
-      </Text>
-      <IconButton theme={theme} icon="RefreshCw" label={t("refresh")} onPress={store.refresh} />
-    </View>
+  // No heading of our own: the host's top bar already shows "Mail". A slim bar holds the
+  // refresh (and, on compact layouts, the back button and the open mailbox's name).
+  const bar = (
+    <PaneBar
+      theme={theme}
+      t={t}
+      label={layout.compact && box ? mailboxLabel(box, t("mailboxes.noName")) : t("mailboxes.heading")}
+      onBack={layout.compact && agentId !== null ? () => (mailId !== null ? setMailId(null) : setAgentId(null)) : undefined}
+      onRefresh={store.refresh}
+      error={mail.error && mail.mailboxes !== null ? mail.error : null}
+    />
   );
+  const panes = !layout.compact && mail.mailboxes !== null && boxes.length > 0;
 
   let body: ReactNode;
   if (mail.mailboxes === null) {
@@ -92,7 +94,10 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
       <View style={{ flex: 1 }}>{agentId === null ? mailboxes : mailId === null ? list : reader}</View>
     ) : (
       <View style={{ flex: 1, flexDirection: "row" }}>
-        <View style={{ width: MAILBOX_PANE, borderRightWidth: 1, borderRightColor: theme.colors.border }}>{mailboxes}</View>
+        <View style={{ width: MAILBOX_PANE, borderRightWidth: 1, borderRightColor: theme.colors.border }}>
+          {bar}
+          <View style={{ flex: 1 }}>{mailboxes}</View>
+        </View>
         <View style={{ width: LIST_PANE, borderRightWidth: 1, borderRightColor: theme.colors.border }}>{list}</View>
         <View style={{ flex: 1 }}>{reader}</View>
       </View>
@@ -101,10 +106,7 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.surface0 }}>
-      {header}
-      {mail.error && mail.mailboxes !== null ? (
-        <Text style={{ color: theme.colors.statusDanger, fontSize: 12, paddingHorizontal: 18, paddingVertical: 6 }}>{t("error", { message: mail.error })}</Text>
-      ) : null}
+      {panes ? null : bar}
       {body}
     </View>
   );
@@ -370,6 +372,24 @@ function MailCard(props: { theme: Theme; t: T; mail: FullMail; selected: boolean
 }
 
 // ---------------------------------------------------------------- small parts
+
+function PaneBar(props: { theme: Theme; t: T; label: string; onBack?: () => void; onRefresh(): void; error: string | null }) {
+  const { theme, t } = props;
+  return (
+    <View style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
+        {props.onBack ? <IconButton theme={theme} icon="ChevronLeft" label={t("back")} onPress={props.onBack} /> : null}
+        <Text numberOfLines={1} style={{ flex: 1, color: theme.colors.foregroundMuted, fontSize: 12, fontWeight: "600" }}>
+          {props.label}
+        </Text>
+        <IconButton theme={theme} icon="RefreshCw" label={t("refresh")} onPress={props.onRefresh} />
+      </View>
+      {props.error ? (
+        <Text style={{ color: theme.colors.statusDanger, fontSize: 11, paddingHorizontal: 12, paddingBottom: 6 }}>{t("error", { message: props.error })}</Text>
+      ) : null}
+    </View>
+  );
+}
 
 function SectionTitle(props: { theme: Theme; text: string }) {
   return (

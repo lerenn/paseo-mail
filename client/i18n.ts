@@ -8,7 +8,6 @@ const en = {
   title: "Mail",
   refresh: "Refresh mail",
   back: "Back",
-  loading: "Loading mail…",
   error: "Could not load mail: {{message}}",
   retry: "Retry",
   mailboxes: {
@@ -57,7 +56,6 @@ export const messages = defineTranslations({
       title: "Courrier",
       refresh: "Actualiser le courrier",
       back: "Retour",
-      loading: "Chargement du courrier…",
       error: "Impossible de charger le courrier : {{message}}",
       retry: "Réessayer",
       mailboxes: {
@@ -105,7 +103,6 @@ export const messages = defineTranslations({
       title: "邮件",
       refresh: "刷新邮件",
       back: "返回",
-      loading: "正在加载邮件…",
       error: "无法加载邮件：{{message}}",
       retry: "重试",
       mailboxes: {
