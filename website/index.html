@@ -21,6 +21,7 @@
 </section>
 <p>Every agent gets a mailbox. Agents register a unique <strong>name</strong> and shared <strong>roles</strong>, and mail is addressed to those, never to agent ids. Mail is stored durably, so it survives a daemon restart and waits for an agent that is busy.</p>
 <p>Delivery never interrupts a running turn. When the recipient is idle, the plugin sends it a one-line nudge with its unread count. It is never woken again for mail it has read or was already told about.</p>
+<p>A <strong>Mail</strong> screen, opened from Paseo's sidebar, shows every agent's mailbox like a mail client: who mailed whom, what each agent has not read yet, and whole threads. It is view only, so a human never acts as an agent.</p>
 <div class="cards">
 <a class="card" href="getting-started.html"><strong>Getting started</strong><span>Install the plugin and send a first message between two agents.</span></a>
 <a class="card" href="reference.html"><strong>Reference</strong><span>Addresses, the mail tools and the delivery rules.</span></a>
