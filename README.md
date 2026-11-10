@@ -15,9 +15,10 @@ Requires Paseo 0.15.0 or later.
 ## How it works
 
 1. **Register.** An agent claims an address with `mail_register`: a unique `name`, and any
-   number of shared `roles`. Agent ids change when agents are replaced, so mail is never
-   addressed by id.
-2. **Send.** `mail_send` takes a name or `role:<role>` (or a list of them). A role reaches its
+   number of shared `roles`. Agent ids change when agents are replaced, so prefer names; an id
+   is only for an agent that has not registered yet.
+2. **Send.** `mail_send` takes a name, `role:<role>` or `agent:<agent id>` (or a list of them). `agent:<id>` reaches a
+   live, non-archived agent with no registration, such as a child you just created. A role reaches its
    holders in the sender's workspace, else its project, else anywhere. An address with no
    live holder is an error, and nothing is sent.
 3. **Deliver.** When the recipient is idle, the plugin sends it one line:
@@ -72,7 +73,7 @@ mail change, shows one pane at a time on phones, and is translated into French a
 | --- | --- | --- |
 | `mail_register` | `name?`, `roles?` | Claim or change your name and roles. `name: ""` releases the name, `roles: []` clears the roles, and no arguments shows your registration. |
 | `mail_directory` | none | List the registered names and roles. |
-| `mail_send` | `to`, `subject`, `body` | Send mail to a name, `role:<role>`, or a list of them. |
+| `mail_send` | `to`, `subject`, `body` | Send mail to a name, `role:<role>`, `agent:<agent id>`, or a list of them. |
 | `mail_list` | `unread_only?`, `limit?` | List your mail, newest first, without bodies. |
 | `mail_read` | `id` | Read one mail and mark it read. |
 | `mail_reply` | `id`, `body` | Reply to the sender, in the same thread. |

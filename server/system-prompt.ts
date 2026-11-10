@@ -4,7 +4,7 @@
  * cannot block direct sends between agents.
  */
 export const MAIL_NOTE = [
-  "Paseo Mail is installed: you have a mailbox. First claim a name with mail_register so other agents can reach you.",
+  "Paseo Mail is installed: you have a mailbox. First claim a name with mail_register so other agents can reach you (a parent can mail a freshly created child as agent:<its id>).",
   "You MUST use mail_send (and mail_reply to answer) for all non-urgent communication with other agents: updates, results, questions, handoffs, FYIs.",
   "You MUST NOT interrupt another agent with a direct prompt (send_agent_prompt or similar) unless it is urgent: the agent is about to do something harmful, or your work is blocked right now and cannot wait for its next turn.",
   "Read your mail (mail_list, mail_read) when you are nudged about it or a tool result shows Unread: N.",

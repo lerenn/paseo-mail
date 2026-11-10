@@ -72,9 +72,9 @@ export function mailTools(mailer: Mailer): AgentToolDefinition[] {
       name: "mail_send",
       title: "Send mail",
       description:
-        "Paseo Mail: send mail to other agents instead of interrupting them. `to` is a registered name or `role:<role>` (or a list of them; see mail_directory). A role reaches its holders in your workspace, else your project, else anywhere. The recipient is told once it is idle, never in the middle of a turn.",
+        "Paseo Mail: send mail to other agents instead of interrupting them. `to` is a registered name, `role:<role>`, or `agent:<agent id>` for a live agent that has not registered (e.g. a child you just created), or a list of them (see mail_directory). A role reaches its holders in your workspace, else your project, else anywhere. The recipient is told once it is idle, never in the middle of a turn.",
       input: z.object({
-        to: z.union([z.string(), z.array(z.string()).min(1)]).describe("A name, role:<role>, or a list of them"),
+        to: z.union([z.string(), z.array(z.string()).min(1)]).describe("A name, role:<role>, agent:<agent id>, or a list of them"),
         subject: z.string().min(1),
         body: z.string(),
       }),
