@@ -1,6 +1,6 @@
 # Plugin SDK version
 
-Status: Proposed
+Status: Accepted
 
 ## Context
 

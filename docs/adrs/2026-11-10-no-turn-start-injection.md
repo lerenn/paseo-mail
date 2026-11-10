@@ -1,6 +1,6 @@
-# Delivery: no turn-start injection, idle nudge only
+# Delivery: idle nudge only, no injection into turns
 
-Status: Proposed
+Status: Accepted
 
 ## Context
 
@@ -14,22 +14,24 @@ and 0.16.0-beta.1:
 - `agent.open.before` (legacy `agent.session_open`) may change only `env`, `tools` and
   `mcpServers`; the daemon rejects any other change. It runs at session open, not per turn.
 - `agent.create.before` may set `config.systemPrompt`, but only once, when an agent is created.
-- `agents.ref(id).send(text, { activeTurnBehavior })` accepts only `interrupt` (the default)
-  or `steer`. There is no "queue until the turn ends".
+- `agents.ref(id).send(text, { activeTurnBehavior })` accepts `interrupt` (the default) or
+  `steer`. There is no "queue until the turn ends".
 - `timeline.append()` adds a plugin item for the app to render; the model does not see it.
 
-So no hook can add text to a turn that is starting.
+So turn-start injection is impossible. Injecting into a running turn is possible with
+`send(..., { activeTurnBehavior: "steer" })`; the playbooks plugin does it. We chose not to:
+mail must never land in the middle of a turn.
 
 ## Decision
 
-- Drop turn-start injection. The only active delivery is the idle nudge
-  (`2026-11-10-idle-nudge.md`).
-- As a passive fallback, every mail tool result ends with the caller's unread count, so an
-  agent that is already using mail sees new mail without a nudge.
-- Agents learn about mail from the tool descriptions. We do not edit system prompts in v1.
+- The only active delivery is the idle nudge (`2026-11-10-idle-nudge.md`). Mail never goes
+  into a running turn.
+- As a passive path, every mail tool result ends with `Unread: N` for the caller, so an agent
+  already using mail sees new mail without a nudge.
+- Agents learn about mail from the tool descriptions. No system-prompt note.
 
 ## Consequences
 
 - Mail that arrives during a turn is seen when that turn ends, never during it.
-- If Paseo adds a waiting turn-start hook that can add context, we can add the injection path
+- If Paseo adds a waiting turn-start hook that can add context, an injection path can be added
   in a new ADR without changing the store or the tools.

@@ -1,6 +1,6 @@
 # Agent tools
 
-Status: Proposed
+Status: Accepted
 
 ## Context
 
@@ -9,18 +9,20 @@ interactive session gets them. The calling agent is known from the tool context.
 
 ## Decision
 
-Four tools, given to every interactive (non-history) session:
+Six tools, given to every interactive (non-history) session:
 
-- `mail_send { to, subject, body }`: `to` is one address or a list of them
-  (`2026-11-10-addressing.md`). Returns the mail ids and who each one reached.
-- `mail_list { unread_only?: true, limit?: 20 }`: the caller's inbox, newest first:
-  id, from, subject, date, read or not. No bodies.
-- `mail_read { id }`: the whole mail. Marks it read. Only the recipient can read it.
-- `mail_reply { id, body }`: replies to the sender, in the same thread, with subject
-  `Re: <subject>`. Goes to the original sender's agent id. If that agent is archived, the
-  sender's name is resolved again, as in a new send.
+- `mail_register { name?, roles? }`: claim a name and roles (`2026-11-10-mail-registry.md`).
+- `mail_directory {}`: registered names and roles, with their agents' titles.
+- `mail_send { to, subject, body }`: `to` is one address or a list. Returns the mail ids
+  and who each one reached.
+- `mail_list { unread_only?, limit? }`: the caller's inbox, newest first: id, from, subject,
+  date, read or not. No bodies. `limit` defaults to 20.
+- `mail_read { id }`: the whole mail. Marks it read. Only its recipient can read it.
+- `mail_reply { id, body }`: replies to the sender in the same thread, with subject
+  `Re: <subject>`. Goes to the sender's agent if still live, else to the agent now holding
+  the sender's registered name; an error if neither exists.
 
-Every result ends with `Unread: N`.
+Every result ends with `Unread: N` for the caller.
 
 ## Consequences
 
