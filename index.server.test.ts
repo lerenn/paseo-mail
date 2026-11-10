@@ -35,7 +35,7 @@ describe("contribute", () => {
 
   it("appends the mailbox note to a new agent's system prompt, once", async () => {
     const hooks = new Map<string, Handler>();
-    const server = { addHook: (name: string, handler: Handler) => (hooks.set(name, handler), () => hooks.delete(name)) } as unknown as PluginServerContext;
+    const server = { addHook: (name: string, handler: Handler) => (hooks.set(name, handler), () => hooks.delete(name)), handle: () => undefined } as unknown as PluginServerContext;
     const cleanup = contribute(server) as () => Promise<void>;
     const create = hooks.get("agent.create.before")!;
     const context = { paseo: {}, signal: new AbortController().signal };
@@ -54,9 +54,14 @@ describe("contribute", () => {
 
   it("adds the mail tools to interactive sessions and nudges after a turn", async () => {
     const hooks = new Map<string, Handler>();
-    const server = { addHook: (name: string, handler: Handler) => (hooks.set(name, handler), () => hooks.delete(name)) } as unknown as PluginServerContext;
+    const rpcs = new Map<string, Handler>();
+    const server = {
+      addHook: (name: string, handler: Handler) => (hooks.set(name, handler), () => hooks.delete(name)),
+      handle: (contract: { name: string }, handler: Handler) => rpcs.set(contract.name, handler),
+    } as unknown as PluginServerContext;
     const cleanup = contribute(server) as () => Promise<void>;
     expect([...hooks.keys()].sort()).toEqual(["agent.archive.after", "agent.create.before", "agent.open.before", "agent.turn.after", "agent.turn.before"]);
+    expect([...rpcs.keys()].sort()).toEqual(["mail.revision", "mailboxes.list", "mails.list", "mails.seen", "mails.view"]);
 
     const sent: { id: string; text: string }[] = [];
     const context = { paseo: fakeApi(sent), signal: new AbortController().signal };
@@ -73,6 +78,14 @@ describe("contribute", () => {
     await hooks.get("agent.turn.after")!({ agent: { id: "b" }, turnId: null, outcome: { kind: "completed" }, timeline: [] }, context);
     await new Promise((resolve) => setTimeout(resolve, 1300));
     expect(sent).toEqual([{ id: "b", text: "[paseo-mail] You have 1 unread mail. Call mail_list to see them." }]);
+
+    // The screen's RPCs see the mail; marking it seen leaves it unread for bob.
+    const { mailboxes } = (await rpcs.get("mailboxes.list")!({}, context)) as { mailboxes: { agentId: string; name: string; unread: number }[] };
+    expect(mailboxes.map((box) => [box.name, box.unread])).toEqual([["bob", 1]]);
+    const { mails } = (await rpcs.get("mails.list")!({ agentId: "b", limit: 10 }, context)) as { mails: { id: string }[] };
+    expect(((await rpcs.get("mails.view")!({ id: mails[0]!.id }, context)) as { mail: { body: string } }).mail.body).toBe("x");
+    await rpcs.get("mails.seen")!({ id: mails[0]!.id, seen: true }, context);
+    expect((await tool("mail_list").execute({ unread_only: true }, toolContext("b"))).text).toContain("Unread: 1");
     await cleanup();
   });
 });

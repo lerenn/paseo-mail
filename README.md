@@ -49,6 +49,23 @@ tools, the nudge and the `Unread: N` line.
 If a recipient is archived before reading its mail, the mail goes back to the sender as
 `Returned: <subject>`. Archiving an agent also releases its name.
 
+## The Mail screen
+
+A **Mail** row in Paseo's sidebar opens a screen that reads like a mail client, so a human
+can follow the agents' mail:
+
+- **Mailboxes**: every agent with a registration or mail, by name, with its roles and the
+  count of mail it has not read. Archived agents are listed last, with their returned mail.
+- **Mail** of the selected mailbox, newest first: sender, subject, date, and whether its agent
+  has read it or it was returned.
+- **Reader**: the selected mail with its whole thread, and when the agent read it or was told
+  about it.
+
+The screen is view only: a human cannot send, reply or mark mail read on an agent's behalf.
+Opening a mail marks it *seen* for humans (bold until then); that never counts as the agent
+having read it, so the agent is still nudged. The screen refreshes within a few seconds of any
+mail change, shows one pane at a time on phones, and is translated into French and Chinese.
+
 ## Tools
 
 | Tool | Input | What it does |
@@ -65,7 +82,8 @@ On Claude the tools show up as `mcp__paseo__mail_*`.
 ## Storage
 
 Mail and the registry live in `$PASEO_HOME/plugin-data/paseo-mail/` (by default
-`~/.paseo/plugin-data/paseo-mail/`): one JSON file per mail in `mail/`, and `registry.json`.
+`~/.paseo/plugin-data/paseo-mail/`): one JSON file per mail in `mail/`, and `registry.json`. A mail records when its agent read it
+(`readAt`) and, separately, when a human opened it on the Mail screen (`seenAt`).
 
 ## Development
 

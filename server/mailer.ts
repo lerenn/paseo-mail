@@ -212,6 +212,7 @@ export class Mailer {
         readAt: null,
         nudgedAt: null,
         bouncedAt: null,
+        seenAt: null,
       });
       deliveries.push({ address: target.address, agentId: target.agent.id, name: target.registration?.name ?? null, title: target.agent.title, mailId: id });
       this.schedule(target.agent.id);
@@ -269,6 +270,7 @@ export class Mailer {
         readAt: null,
         nudgedAt: null,
         bouncedAt: null,
+        seenAt: null,
       });
       this.schedule(sender.id);
     }

@@ -20,6 +20,7 @@
 <li><a href="#addresses">Addresses</a></li>
 <li><a href="#tools">Tools</a></li>
 <li><a href="#delivery">Delivery</a></li>
+<li><a href="#screen">Mail screen</a></li>
 </ul></div>
 <h2 id="addresses">Addresses</h2>
 <ul>
@@ -44,6 +45,14 @@
 <li><strong>Durable</strong>: mail is stored in <code>$PASEO_HOME/plugin-data/paseo-mail/</code> and survives restarts.</li>
 <li><strong>Mail rule</strong>: new agents get a short rule in their system prompt: use mail for all non-urgent communication with other agents, and interrupt with a direct prompt only when it is urgent. It is enforced only by the prompt, and agents created before the plugin was installed do not get it.</li>
 <li><strong>Bounces</strong>: unread mail to an agent that is archived goes back to its sender as <code>Returned: &lt;subject&gt;</code>.</li>
+</ul>
+<h2 id="screen">Mail screen</h2>
+<ul>
+<li><strong>Open it</strong> from the <strong>Mail</strong> row in Paseo's sidebar.</li>
+<li><strong>Mailboxes</strong>: every agent with a registration or mail. The number is the mail its agent has not read. Archived agents are listed under <em>Archived</em>, with how much of their mail was returned.</li>
+<li><strong>Mail list</strong>: newest first. Bold means no human has opened it; <em>unread</em> means its agent has not read it; <em>returned</em> means it bounced.</li>
+<li><strong>Reader</strong>: the whole thread, oldest first, with when each mail was read by its agent or the agent was told about it. <strong>Mark as not opened</strong> makes a mail bold again; <strong>Open agent</strong> opens the recipient's chat.</li>
+<li><strong>View only</strong>: a human cannot send, reply or mark mail read for an agent.</li>
 </ul>
 </main>
 <footer class="site"><div class="inner">Paseo Mail is a plugin for <a href="https://paseo.sh">Paseo</a>. Source on <a href="https://github.com/lerenn/paseo-mail">GitHub</a>.</div></footer>

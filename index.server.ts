@@ -7,6 +7,8 @@ import { Registry } from "./server/registry";
 import { MailStore } from "./server/store";
 import { withMailNote } from "./server/system-prompt";
 import { mailTools } from "./server/tools";
+import { MailViewer } from "./server/viewer";
+import { listMailboxesRpc, listMailsRpc, markSeenRpc, revisionRpc, viewMailRpc } from "./shared/contracts";
 
 export default function contribute(server: PluginServerContext) {
   const dataDir = defaultDataDir();
@@ -15,6 +17,7 @@ export default function contribute(server: PluginServerContext) {
   const ready = Promise.all([store.init(), registry.init()]);
   const paseo = new PaseoAdapter();
   const mailer = new Mailer(store, registry, paseo);
+  const viewer = new MailViewer(store, registry, paseo);
 
   /** Every hook waits for the store; the first one attaches the daemon API and flushes held nudges. */
   const enter = async (api: PaseoApi) => {
@@ -69,6 +72,21 @@ export default function contribute(server: PluginServerContext) {
       }),
     ),
   ];
+
+  // The Mail screen's RPCs: read-only, apart from the human-only seen mark.
+  const handle: PluginServerContext["handle"] = (contract, handler) =>
+    server.handle(contract, async (input, context) => {
+      await enter(context.paseo);
+      return handler(input, context);
+    });
+  handle(revisionRpc, async () => ({ revision: viewer.revision() }));
+  handle(listMailboxesRpc, async () => {
+    const revision = viewer.revision();
+    return { revision, mailboxes: await viewer.mailboxes() };
+  });
+  handle(listMailsRpc, async ({ agentId, limit }) => viewer.list(agentId, limit));
+  handle(viewMailRpc, async ({ id }) => viewer.view(id));
+  handle(markSeenRpc, async ({ id, seen }) => ({ seenAt: await viewer.setSeen(id, seen) }));
 
   return () => {
     for (const off of unhook) off();

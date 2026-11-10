@@ -7,8 +7,19 @@ import { MailSchema, type Mail } from "./types";
 export class MailStore {
   private readonly mails = new Map<string, Mail>();
   private readonly queue = new Queue();
+  /** Bumped on every change, so a viewer can poll cheaply for "anything new?". */
+  private changes = 0;
 
   constructor(readonly dir: string) {}
+
+  get revision(): number {
+    return this.changes;
+  }
+
+  /** Every mail, in no particular order. */
+  all(): Mail[] {
+    return [...this.mails.values()];
+  }
 
   async init(): Promise<void> {
     await mkdir(this.dir, { recursive: true });
@@ -46,6 +57,7 @@ export class MailStore {
       if (this.mails.has(mail.id)) throw new Error(`mail ${mail.id} already exists`);
       await this.write(mail);
       this.mails.set(mail.id, mail);
+      this.changes += 1;
       return mail;
     });
   }
@@ -63,6 +75,7 @@ export class MailStore {
         this.mails.set(id, next);
         updated.push(next);
       }
+      if (updated.length > 0) this.changes += 1;
       return updated;
     });
   }
