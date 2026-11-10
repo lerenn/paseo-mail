@@ -63,6 +63,43 @@ describe("send, list, read", () => {
   });
 });
 
+describe("alias required to read", () => {
+  it("nudges an unnamed agent with the register text, and a named one with the normal text, once per mail", async () => {
+    const { mailer, paseo, alice } = await pair();
+    paseo.add("child-id", { title: "Child" });
+    await mailer.send(alice, ["agent:child-id"], "Task", "Do it");
+    expect(await mailer.nudge("child-id")).toBe("sent");
+    expect(paseo.sent.at(-1)!.text).toBe(nudgeText(1, false));
+    expect(nudgeText(1, false)).toContain("mail_register");
+    expect(nudgeText(1, false)).toContain("mail_reply");
+    expect(nudgeText(1)).toBe("[paseo-mail] You have 1 unread mail. Call mail_list to see them.");
+    // Registering changes the text but never re-nudges mail it was already nudged about.
+    await mailer.register({ id: "child-id", workspaceId: null, title: "Child" }, { name: "child" });
+    paseo.sent.length = 0;
+    mailer.onTurnStarted("child-id");
+    mailer.onTurnEnded("child-id");
+    expect(await mailer.nudge("child-id")).toBe("nothing");
+    await mailer.send(alice, ["child"], "More", "x");
+    expect(await mailer.nudge("child-id")).toBe("sent");
+    expect(paseo.sent).toEqual([{ agentId: "child-id", text: nudgeText(2) }]);
+  });
+
+  it("requires a name, not a role, to read, and the mail is there once named", async () => {
+    const { mailer, paseo, alice } = await pair();
+    const child = paseo.add("child-id", { title: "Child" });
+    await mailer.send(alice, ["agent:child-id"], "Task", "Do it");
+    await mailer.send(alice, ["agent:child-id"], "Task 2", "Do it too");
+    expect(mailer.hasName("child-id")).toBe(false);
+    expect(() => mailer.requireName("child-id")).toThrow(/register a name.*2 unread mails are waiting/);
+    await mailer.register(child, { roles: ["worker"] });
+    expect(() => mailer.requireName("child-id")).toThrow(/mail_register/);
+    await mailer.register(child, { name: "child" });
+    expect(() => mailer.requireName("child-id")).not.toThrow();
+    expect(mailer.list("child-id").map((m) => m.subject).sort()).toEqual(["Task", "Task 2"]);
+    expect(mailer.unreadCount("child-id")).toBe(2);
+  });
+});
+
 describe("agent:<id> addressing", () => {
   it("reaches a live agent with no registry entry, and nudges it", async () => {
     const { mailer, paseo, registry, alice } = await pair();
@@ -72,7 +109,7 @@ describe("agent:<id> addressing", () => {
     expect(registry.get("child-id")).toBeUndefined();
     expect(mailer.list("child-id")[0]).toMatchObject({ subject: "Task", to: { agentId: "child-id", address: "agent:child-id" }, from: { agentId: "alice-id", name: "alice" } });
     expect(await mailer.nudge("child-id")).toBe("sent");
-    expect(paseo.sent).toEqual([{ agentId: "child-id", text: nudgeText(1) }]);
+    expect(paseo.sent).toEqual([{ agentId: "child-id", text: nudgeText(1, false) }]);
     void child;
   });
 

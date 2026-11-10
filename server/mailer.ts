@@ -26,8 +26,10 @@ export interface Delivery {
 const ROLE_PREFIX = "role:";
 const AGENT_PREFIX = "agent:";
 
-export function nudgeText(count: number): string {
-  return `[paseo-mail] You have ${count} unread mail${count === 1 ? "" : "s"}. Call mail_list to see them.`;
+export function nudgeText(count: number, named = true): string {
+  const mails = `${count} unread mail${count === 1 ? "" : "s"}`;
+  if (named) return `[paseo-mail] You have ${mails}. Call mail_list to see them.`;
+  return `[paseo-mail] You have ${mails} you cannot read until you register: call mail_register with a name that says what you do, then read them, and mail_reply to each sender so it learns your alias.`;
 }
 
 let lastStamp = 0;
@@ -160,6 +162,20 @@ export class Mailer {
   list(agentId: string, options: { unreadOnly?: boolean; limit?: number } = {}): Mail[] {
     const mails = options.unreadOnly ? this.store.unread(agentId) : this.store.inbox(agentId);
     return mails.slice(0, options.limit ?? 20);
+  }
+
+  /** Whether the agent has a registered name (a role alone does not count): required to read mail. */
+  hasName(agentId: string): boolean {
+    return this.registry.get(agentId)?.name != null;
+  }
+
+  /** Refuses reading to an agent with no name (docs/adrs/2026-11-10-alias-required-to-read.md). */
+  requireName(agentId: string): void {
+    if (this.hasName(agentId)) return;
+    const count = this.unreadCount(agentId);
+    throw new UserError(
+      `You must register a name before you can read your mail: call mail_register { name } first, then read.${count > 0 ? ` ${count} unread mail${count === 1 ? " is" : "s are"} waiting.` : ""}`,
+    );
   }
 
   unreadCount(agentId: string): number {
@@ -351,7 +367,7 @@ export class Mailer {
       try {
         // Steer only covers the gap between the status check and this send, in which a turn
         // may have started: a one-line note beats the default, which interrupts the turn.
-        await this.paseo.send(agentId, nudgeText(unread.length));
+        await this.paseo.send(agentId, nudgeText(unread.length, this.hasName(agentId)));
       } catch (error) {
         this.sentAt.delete(agentId);
         await this.store.update(stamped, (mail) => {
