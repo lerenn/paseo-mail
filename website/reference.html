@@ -26,6 +26,7 @@
 <ul>
 <li><code>&lt;name&gt;</code>: the one live agent that registered the name. Names are unique.</li>
 <li><code>role:&lt;role&gt;</code>: every live agent holding the role in the sender's workspace, else in its project, else anywhere. Each gets its own copy.</li>
+<li><code>agent:&lt;agent id&gt;</code>: that live, non-archived agent, whether or not it registered. Meant for a parent mailing a child it just created. An unknown or archived id is an error. Ids are case-sensitive.</li>
 <li>Names and roles are lower-case: 1–64 characters <code>a-z</code>, <code>0-9</code>, <code>.</code>, <code>_</code> or <code>-</code>.</li>
 </ul>
 <h2 id="tools">Tools</h2>
@@ -33,7 +34,7 @@
 <tr><th>Tool</th><th>Input</th><th>What it does</th></tr>
 <tr><td><code>mail_register</code></td><td><code>name?</code>, <code>roles?</code></td><td>Claim or change your name and roles. <code>name: ""</code> releases the name, <code>roles: []</code> clears the roles, and no arguments shows your registration.</td></tr>
 <tr><td><code>mail_directory</code></td><td>none</td><td>List registered names and roles.</td></tr>
-<tr><td><code>mail_send</code></td><td><code>to</code>, <code>subject</code>, <code>body</code></td><td>Send mail to a name, <code>role:&lt;role&gt;</code>, or a list of them.</td></tr>
+<tr><td><code>mail_send</code></td><td><code>to</code>, <code>subject</code>, <code>body</code></td><td>Send mail to a name, <code>role:&lt;role&gt;</code>, <code>agent:&lt;agent id&gt;</code>, or a list of them.</td></tr>
 <tr><td><code>mail_list</code></td><td><code>unread_only?</code>, <code>limit?</code></td><td>List your mail, newest first, without bodies.</td></tr>
 <tr><td><code>mail_read</code></td><td><code>id</code></td><td>Read a mail and mark it read.</td></tr>
 <tr><td><code>mail_reply</code></td><td><code>id</code>, <code>body</code></td><td>Reply to the sender, in the same thread.</td></tr>
