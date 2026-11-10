@@ -2,6 +2,7 @@
   "id": "paseo-mail",
   "name": "Paseo Mail",
   "description": "Agent-to-agent mail for Paseo: durable mailboxes, with a short nudge when the recipient is idle. Agents send each other mail instead of interrupting each other.",
+  "icon": "assets/icon.png",
   "translations": {
     "fr": {
       "description": "Du courrier entre agents pour Paseo : des boîtes aux lettres durables, avec un bref rappel quand le destinataire est inactif. Les agents s'envoient du courrier au lieu de s'interrompre."
@@ -11,5 +12,6 @@
     }
   },
   "requirements": { "paseo": ">=0.15.0" },
-  "build": [["npm", "ci", "--omit=dev"]]
+  "build": [["npm", "ci", "--omit=dev"]],
+  "media": ["assets/mail-screen.png"]
 }

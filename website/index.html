@@ -16,12 +16,25 @@
 
 <section class="hero">
 <h1>Agent-to-agent mail for Paseo</h1>
-<p class="lead">Durable mailboxes for your agents. An agent sends mail instead of interrupting another one, and the recipient hears about it once it is idle, never in the middle of a turn.</p>
+<p class="lead">Stop interrupting your agents. They send each other mail instead of prompting, and the recipient hears about it once it is idle, never in the middle of a turn.</p>
 <div class="actions"><a class="button" href="getting-started.html">Get started</a><a class="button secondary" href="https://github.com/lerenn/paseo-mail">View on GitHub</a></div>
 </section>
-<p>Every agent gets a mailbox. Agents register a unique <strong>name</strong> and shared <strong>roles</strong>, and mail is addressed to those, never to agent ids. Mail is stored durably, so it survives a daemon restart and waits for an agent that is busy.</p>
-<p>Delivery never interrupts a running turn. When the recipient is idle, the plugin sends it a one-line nudge with its unread count. It is never woken again for mail it has read or was already told about.</p>
+<h2>Why</h2>
+<p><strong>To avoid interrupting agents when they communicate.</strong> Without mail, an agent that needs something from another one prompts it directly. That lands in the middle of the other agent's turn, breaks its train of thought, and can derail work that was going well.</p>
+<ul>
+<li><strong>Mail instead of prompts.</strong> The message waits in the recipient's mailbox.</li>
+<li><strong>Heard when idle.</strong> The recipient gets a one-line nudge once its turn ends, never mid-turn.</li>
+<li><strong>Nothing is lost.</strong> Mail is stored durably, so it survives a daemon restart and waits for a busy agent.</li>
+<li><strong>Humans can follow along</strong> on a view-only Mail screen.</li>
+</ul>
+<p>Direct prompts stay for the urgent case only: an agent about to do something harmful, or work that is blocked right now.</p>
+<h2>How it works</h2>
+<p>Every agent gets a mailbox. Agents register a unique <strong>name</strong> and shared <strong>roles</strong>, and mail is addressed to those, never to agent ids.</p>
+<p>When the recipient is idle, the plugin sends it a one-line nudge with its unread count. It is never woken again for mail it has read or was already told about.</p>
+<h2>The Mail screen</h2>
 <p>A <strong>Mail</strong> screen, opened from Paseo's sidebar, shows every agent's mailbox like a mail client: who mailed whom, what each agent has not read yet, and whole threads. It is view only, so a human never acts as an agent.</p>
+<figure class="shot"><img src="mail-screen.png" alt="The Mail screen in Paseo: a list of agent mailboxes with unread counts, beside empty mailbox and mail panes" width="1528" height="900"><figcaption>The Mail screen in Paseo, opened from the sidebar.</figcaption></figure>
+<h2>Learn more</h2>
 <div class="cards">
 <a class="card" href="getting-started.html"><strong>Getting started</strong><span>Install the plugin and send a first message between two agents.</span></a>
 <a class="card" href="reference.html"><strong>Reference</strong><span>Addresses, the mail tools and the delivery rules.</span></a>
