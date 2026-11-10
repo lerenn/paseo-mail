@@ -22,9 +22,24 @@ export function shortDate(iso: string, now: Date = new Date()): string {
   return sameDay ? time : `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${time}`;
 }
 
-/** How many mails of each thread a list holds, to mark rows that have siblings. */
-export function threadCounts(mails: readonly Pick<MailHeader, "threadId">[]): Map<string, number> {
-  const counts = new Map<string, number>();
-  for (const mail of mails) counts.set(mail.threadId, (counts.get(mail.threadId) ?? 0) + 1);
-  return counts;
+/** A conversation as the list shows it: its newest mail, standing for all the mails of the thread. */
+export interface ThreadGroup<M extends Pick<MailHeader, "id" | "threadId">> {
+  threadId: string;
+  /** The newest mail of the thread in this list. */
+  latest: M;
+  ids: string[];
+  count: number;
+}
+
+/** Groups a newest-first mail list by thread; groups keep the order of their newest mail. */
+export function groupThreads<M extends Pick<MailHeader, "id" | "threadId">>(mails: readonly M[]): ThreadGroup<M>[] {
+  const groups = new Map<string, ThreadGroup<M>>();
+  for (const mail of mails) {
+    const group = groups.get(mail.threadId);
+    if (group) {
+      group.ids.push(mail.id);
+      group.count += 1;
+    } else groups.set(mail.threadId, { threadId: mail.threadId, latest: mail, ids: [mail.id], count: 1 });
+  }
+  return [...groups.values()];
 }

@@ -3,7 +3,7 @@ import { Icon, Loading, Markdown, ScrollView, SidebarRow, useToast } from "@getp
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Pressable, Text, View } from "react-native";
 import { listMailsRpc, markSeenRpc, viewMailRpc, type FullMail, type Mailbox, type MailHeader } from "../shared/contracts";
-import { mailboxLabel, senderLabel, shortDate, threadCounts } from "./format";
+import { groupThreads, mailboxLabel, senderLabel, shortDate } from "./format";
 import { messages } from "./i18n";
 import { useMail, type MailStore } from "./mail-store";
 
@@ -201,14 +201,14 @@ function useMails(agentId: string, revision: string | null) {
 function MailListPane(props: { theme: Theme; t: T; box: Mailbox; revision: string | null; selected: string | null; onSelect(id: string): void }) {
   const { theme, t } = props;
   const { data, error } = useMails(props.box.agentId, props.revision);
-  const counts = useMemo(() => threadCounts(data?.mails ?? []), [data]);
+  const groups = useMemo(() => groupThreads(data?.mails ?? []), [data]);
   if (!data) return error ? <ErrorState theme={theme} t={t} message={error} /> : <Loading />;
   if (data.mails.length === 0) return <Empty theme={theme} icon="Inbox" text={t("mails.empty")} />;
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 12 }}>
       <Text style={{ color: theme.colors.foregroundMuted, fontSize: 11, paddingHorizontal: 14, paddingVertical: 8 }}>{t("mails.legend")}</Text>
-      {data.mails.map((mail) => (
-        <MailRow key={mail.id} theme={theme} t={t} mail={mail} siblings={(counts.get(mail.threadId) ?? 1) - 1} selected={props.selected === mail.id} onPress={() => props.onSelect(mail.id)} />
+      {groups.map((group) => (
+        <MailRow key={group.threadId} theme={theme} t={t} mail={group.latest} count={group.count} selected={props.selected !== null && group.ids.includes(props.selected)} onPress={() => props.onSelect(group.latest.id)} />
       ))}
       {data.total > data.mails.length ? (
         <Text style={{ color: theme.colors.foregroundMuted, fontSize: 11, paddingHorizontal: 14, paddingTop: 8 }}>{t("mails.more", { shown: data.mails.length, total: data.total })}</Text>
@@ -217,7 +217,7 @@ function MailListPane(props: { theme: Theme; t: T; box: Mailbox; revision: strin
   );
 }
 
-function MailRow(props: { theme: Theme; t: T; mail: MailHeader; siblings: number; selected: boolean; onPress(): void }) {
+function MailRow(props: { theme: Theme; t: T; mail: MailHeader; count: number; selected: boolean; onPress(): void }) {
   const { theme, t, mail } = props;
   const unseen = mail.seenAt === null;
   const status = mail.bouncedAt !== null ? { text: t("mails.returned"), color: theme.colors.statusWarning } : mail.readAt === null ? { text: t("mails.unread"), color: theme.colors.accent } : null;
@@ -250,7 +250,7 @@ function MailRow(props: { theme: Theme; t: T; mail: MailHeader; siblings: number
           <Text numberOfLines={1} style={{ flex: 1, color: theme.colors.foreground, fontSize: 13, fontWeight: unseen ? "700" : "400" }}>
             {subject}
           </Text>
-          {props.siblings > 0 ? <Tag theme={theme} text={t("mails.inThread", { count: props.siblings + 1 })} color={theme.colors.foregroundMuted} /> : null}
+          {props.count > 1 ? <Tag theme={theme} text={t("mails.inThread", { count: props.count })} color={theme.colors.foregroundMuted} /> : null}
           {status ? <Tag theme={theme} text={status.text} color={status.color} /> : null}
         </View>
         {mail.preview ? (
