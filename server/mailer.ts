@@ -24,6 +24,7 @@ export interface Delivery {
 }
 
 const ROLE_PREFIX = "role:";
+const AGENT_PREFIX = "agent:";
 
 export function nudgeText(count: number): string {
   return `[paseo-mail] You have ${count} unread mail${count === 1 ? "" : "s"}. Call mail_list to see them.`;
@@ -108,8 +109,17 @@ export class Mailer {
   }
 
   /** Resolves one address to the live agents it reaches. Throws when it reaches none. */
-  async resolve(caller: Caller, address: string): Promise<{ agentId: string; registration: Registration; agent: AgentInfo }[]> {
+  async resolve(caller: Caller, address: string): Promise<{ agentId: string; registration: Registration | null; agent: AgentInfo }[]> {
     const trimmed = address.trim();
+    if (trimmed.toLowerCase().startsWith(AGENT_PREFIX)) {
+      // An agent id needs no registry entry (docs/adrs/2026-11-10-agent-id-addressing.md). Ids are case-sensitive.
+      const id = trimmed.slice(AGENT_PREFIX.length).trim();
+      if (id === "") throw new UserError('give an agent id after "agent:"');
+      const agent = await this.live(id);
+      if (!agent) throw new UserError(`no live agent has the id "${id}" (it does not exist or is archived)`);
+      if (agent.id === caller.id) throw new UserError("you cannot send mail to yourself");
+      return [{ agentId: agent.id, registration: this.registry.get(agent.id) ?? null, agent }];
+    }
     if (trimmed.toLowerCase().startsWith(ROLE_PREFIX)) {
       const role = normalize(trimmed.slice(ROLE_PREFIX.length), "role");
       const holders: { agentId: string; registration: Registration; agent: AgentInfo }[] = [];
@@ -175,7 +185,7 @@ export class Mailer {
     const thread = { threadId: original.threadId, inReplyTo: original.id };
     const sender = await this.live(original.from.agentId);
     if (sender) {
-      const [delivery] = await this.deliver(caller, [{ address: original.from.name ?? sender.title ?? sender.id, registration: this.registry.get(sender.id) ?? null, agent: sender }], subject, body, thread);
+      const [delivery] = await this.deliver(caller, [{ address: original.from.name ?? `${AGENT_PREFIX}${sender.id}`, registration: this.registry.get(sender.id) ?? null, agent: sender }], subject, body, thread);
       return delivery!;
     }
     if (!original.from.name) throw new UserError("the sender was archived and had no registered name; the reply cannot be delivered");

@@ -63,6 +63,54 @@ describe("send, list, read", () => {
   });
 });
 
+describe("agent:<id> addressing", () => {
+  it("reaches a live agent with no registry entry, and nudges it", async () => {
+    const { mailer, paseo, registry, alice } = await pair();
+    const child = paseo.add("child-id", { title: "Child" });
+    const [delivery] = await mailer.send(alice, ["agent:child-id"], "Task", "Do it");
+    expect(delivery).toMatchObject({ agentId: "child-id", name: null, title: "Child", address: "agent:child-id" });
+    expect(registry.get("child-id")).toBeUndefined();
+    expect(mailer.list("child-id")[0]).toMatchObject({ subject: "Task", to: { agentId: "child-id", address: "agent:child-id" }, from: { agentId: "alice-id", name: "alice" } });
+    expect(await mailer.nudge("child-id")).toBe("sent");
+    expect(paseo.sent).toEqual([{ agentId: "child-id", text: nudgeText(1) }]);
+    void child;
+  });
+
+  it("is case-insensitive in the prefix only, and also reaches registered agents", async () => {
+    const { mailer, paseo, alice } = await pair();
+    paseo.add("Mixed-ID");
+    expect((await mailer.send(alice, ["AGENT: Mixed-ID "], "s", "b"))[0]!.agentId).toBe("Mixed-ID");
+    await expect(mailer.send(alice, ["agent:mixed-id"], "s", "b")).rejects.toThrow(/no live agent has the id/);
+    const [d] = await mailer.send(alice, ["agent:bob-id"], "s", "b");
+    expect(d).toMatchObject({ agentId: "bob-id", name: "bob" });
+  });
+
+  it("errors for a missing or archived id and sends nothing", async () => {
+    const { mailer, paseo, alice } = await pair();
+    paseo.add("gone-id");
+    paseo.archive("gone-id");
+    await expect(mailer.send(alice, ["bob", "agent:gone-id"], "s", "b")).rejects.toThrow(/no live agent has the id "gone-id"/);
+    await expect(mailer.send(alice, ["agent:nope"], "s", "b")).rejects.toThrow(/no live agent has the id "nope"/);
+    await expect(mailer.send(alice, ["agent:"], "s", "b")).rejects.toThrow(/agent id/);
+    await expect(mailer.send(alice, ["agent:alice-id"], "s", "b")).rejects.toThrow(/yourself/);
+    expect(mailer.unreadCount("bob-id")).toBe(0);
+  });
+
+  it("lets an unnamed recipient reply, and returns mail when it is archived", async () => {
+    const { mailer, paseo, alice } = await pair();
+    const child = paseo.add("child-id");
+    const [first] = await mailer.send(alice, ["agent:child-id"], "Q", "?");
+    const reply = await mailer.reply(child, first!.mailId, "A");
+    expect(reply).toMatchObject({ agentId: "alice-id", address: "alice" });
+    // Alice replies back to the unnamed child by agent id.
+    const again = await mailer.reply(alice, mailer.list("alice-id")[0]!.id, "B");
+    expect(again).toMatchObject({ agentId: "child-id", address: "agent:child-id" });
+    paseo.archive("child-id");
+    await mailer.onArchived("child-id");
+    expect(mailer.list("alice-id").map((m) => m.subject)).toContain("Returned: Q");
+  });
+});
+
 describe("roles", () => {
   it("reaches holders in the sender's workspace, else project, else anywhere", async () => {
     const env = await setup({ debounceMs: 60_000 });
