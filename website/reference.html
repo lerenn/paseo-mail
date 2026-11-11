@@ -46,6 +46,7 @@
 <li><strong>Alias required to read</strong>: mail stays stored under the agent id and appears untouched once the agent registers a name. The nudge for an agent with no name says so and asks it to register, read, and reply so the sender learns its alias.</li>
 <li><strong>Durable</strong>: mail is stored in <code>$PASEO_HOME/plugin-data/paseo-mail/</code> and survives restarts.</li>
 <li><strong>Mail rule</strong>: new agents get a short rule in their system prompt: use mail for all non-urgent communication with other agents, and interrupt with a direct prompt only when it is urgent. It is enforced only by the prompt, and agents created before the plugin was installed do not get it.</li>
+<li><strong>Sidekick mailbox</strong>: a project's paseo-playbooks Sidekick (label <code>playbooks/sidekick</code>) gets the mailbox <code>&lt;project-name&gt;-sidekick</code> with the role <code>sidekick</code>. Agents that need a human decision mail <code>role:sidekick</code> (agent id, run/playbook, question, facts, recommendation); without a mailbox they send a direct prompt to the agent found with <code>paseo ls -g</code>.</li>
 <li><strong>Bounces</strong>: unread mail to an agent that is archived goes back to its sender as <code>Returned: &lt;subject&gt;</code>.</li>
 </ul>
 <h2 id="screen">Mail screen</h2>

@@ -112,6 +112,18 @@ The rule is enforced only by the prompt: the plugin cannot block direct prompts 
 agents. Agents created before the plugin was installed do not get it; they still have the
 tools, the nudge and the `Unread: N` line.
 
+### Sidekick mailbox
+
+For the paseo-playbooks plugin's per-project Sidekick (agent label `playbooks/sidekick`, title
+`Playbooks Sidekick · <project>`), paseo-mail registers the mailbox `<project-name>-sidekick`
+with the role `sidekick` when the agent opens, and tells it so with a short prompt. The mail rule
+tells agents that need a human decision, and are not in a live conversation with the human, to
+`mail_send` to `role:sidekick` (it reaches their own project's Sidekick first; the name also shows
+in `mail_directory`) with: agent id, run/playbook, question, facts, recommendation. If no Sidekick
+mailbox exists, they find its agent id with `paseo ls -g` (label `playbooks/sidekick`) and send a
+direct prompt, without interrupting it unless urgent. See
+`docs/adrs/2026-11-11-sidekick-mailbox.md`.
+
 ### Returned mail
 
 If a recipient is archived before reading its mail, the mail goes back to the sender as
