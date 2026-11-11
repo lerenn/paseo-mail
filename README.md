@@ -119,8 +119,8 @@ If a recipient is archived before reading its mail, the mail goes back to the se
 
 ### Storage
 
-Mail and the registry live in `$PASEO_HOME/plugin-data/paseo-mail/` (by default
-`~/.paseo/plugin-data/paseo-mail/`): one JSON file per mail in `mail/`, and `registry.json`. A mail records when its agent read it
+Mail and the registry live in `$PASEO_HOME/plugin-data/lerenn/mail/` (by default
+`~/.paseo/plugin-data/lerenn/mail/`): one JSON file per mail in `mail/`, and `registry.json`. A mail records when its agent read it
 (`readAt`) and, separately, when a human opened it on the Mail screen (`seenAt`).
 
 ## Development

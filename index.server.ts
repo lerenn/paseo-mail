@@ -2,7 +2,7 @@ import type { PluginServerContext } from "@getpaseo/plugin/server";
 import path from "node:path";
 import { Mailer } from "./server/mailer";
 import { PaseoAdapter, type PaseoApi } from "./server/paseo";
-import { defaultDataDir } from "./server/paths";
+import { defaultDataDir, migrateLegacyDataDir } from "./server/paths";
 import { Registry } from "./server/registry";
 import { MailStore } from "./server/store";
 import { withMailNote } from "./server/system-prompt";
@@ -14,7 +14,7 @@ export default function contribute(server: PluginServerContext) {
   const dataDir = defaultDataDir();
   const store = new MailStore(path.join(dataDir, "mail"));
   const registry = new Registry(path.join(dataDir, "registry.json"));
-  const ready = Promise.all([store.init(), registry.init()]);
+  const ready = migrateLegacyDataDir(dataDir).then(() => Promise.all([store.init(), registry.init()]));
   const paseo = new PaseoAdapter();
   const mailer = new Mailer(store, registry, paseo);
   const viewer = new MailViewer(store, registry, paseo);
