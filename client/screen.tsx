@@ -1,7 +1,7 @@
 import { useRpc, useTranslation, type PluginScreenProps, type PluginSidebarItemProps } from "@getpaseo/plugin/client";
 import { Icon, Loading, Markdown, ScrollView, SidebarRow, useToast } from "@getpaseo/plugin/client/ui";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { PanResponder, Pressable, Text, View } from "react-native";
 import { listMailsRpc, markSeenRpc, viewMailRpc, type FullMail, type Mailbox, type MailHeader } from "../shared/contracts";
 import { groupThreads, mailboxLabel, senderLabel, shortDate } from "./format";
 import { messages } from "./i18n";
@@ -15,6 +15,39 @@ type T = ReturnType<typeof useTranslation<typeof messages.resources.en>>["t"];
 
 const MAILBOX_PANE = 240;
 const LIST_PANE = 340;
+const MIN_PANE = 160;
+const MAX_PANE = 640;
+
+/** A thin draggable divider: drag it to resize the pane on its left. */
+function Splitter(props: { theme: Theme; width: number; onResize(width: number): void }) {
+  const start = useRef(props.width);
+  const latest = useRef(props);
+  latest.current = props;
+  const [active, setActive] = useState(false);
+  const responder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderTerminationRequest: () => false,
+        onPanResponderGrant: () => {
+          start.current = latest.current.width;
+          setActive(true);
+        },
+        onPanResponderMove: (_event, gesture) =>
+          latest.current.onResize(Math.max(MIN_PANE, Math.min(MAX_PANE, start.current + gesture.dx))),
+        onPanResponderRelease: () => setActive(false),
+        onPanResponderTerminate: () => setActive(false),
+      }),
+    [],
+  );
+  return (
+    <View
+      {...responder.panHandlers}
+      style={[{ width: 6, marginLeft: -3, marginRight: -3, zIndex: 1, backgroundColor: active ? props.theme.colors.accent : "transparent" }, { cursor: "col-resize" } as object]}
+    />
+  );
+}
 
 // ---------------------------------------------------------------- sidebar row
 
@@ -37,6 +70,8 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
   const mail = useMail(store);
   const [agentId, setAgentId] = useState<string | null>(null);
   const [mailId, setMailId] = useState<string | null>(null);
+  const [boxWidth, setBoxWidth] = useState(MAILBOX_PANE);
+  const [listWidth, setListWidth] = useState(LIST_PANE);
 
   const boxes = mail.mailboxes ?? [];
   const box = boxes.find((candidate) => candidate.agentId === agentId) ?? null;
@@ -94,11 +129,13 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
       <View style={{ flex: 1 }}>{agentId === null ? mailboxes : mailId === null ? list : reader}</View>
     ) : (
       <View style={{ flex: 1, flexDirection: "row" }}>
-        <View style={{ width: MAILBOX_PANE, borderRightWidth: 1, borderRightColor: theme.colors.border }}>
+        <View style={{ width: boxWidth, borderRightWidth: 1, borderRightColor: theme.colors.border }}>
           {bar}
           <View style={{ flex: 1 }}>{mailboxes}</View>
         </View>
-        <View style={{ width: LIST_PANE, borderRightWidth: 1, borderRightColor: theme.colors.border }}>{list}</View>
+        <Splitter theme={theme} width={boxWidth} onResize={setBoxWidth} />
+        <View style={{ width: listWidth, borderRightWidth: 1, borderRightColor: theme.colors.border }}>{list}</View>
+        <Splitter theme={theme} width={listWidth} onResize={setListWidth} />
         <View style={{ flex: 1 }}>{reader}</View>
       </View>
     );
