@@ -12,7 +12,7 @@ addresses in it.
 ## Decision
 
 - An agent claims addresses with `mail_register { name?, roles? }`. The registry lives in
-  `$PASEO_HOME/plugin-data/paseo-mail/registry.json` and maps an agent id to one optional
+  `$PASEO_HOME/plugin-data/lerenn/mail/registry.json` and maps an agent id to one optional
   name and a set of roles, with the agent's workspace and project.
 - Names and roles are lower-cased and trimmed, and must match `[a-z0-9][a-z0-9._-]{0,63}`.
 - **Names are unique** across the daemon. Claiming a name held by another live agent is an

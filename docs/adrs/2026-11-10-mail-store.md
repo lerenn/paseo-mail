@@ -10,7 +10,7 @@ atomic writes and serialized mutations.
 
 ## Decision
 
-- Mail lives in `$PASEO_HOME/plugin-data/paseo-mail/mail/` (default `~/.paseo`), one JSON
+- Mail lives in `$PASEO_HOME/plugin-data/lerenn/mail/mail/` (default `~/.paseo`), one JSON
   file per mail, written atomically (temp file, then rename). Writes are serialized.
 - A mail holds: `id`, `threadId`, `inReplyTo`, `from` (agent id and name at send time),
   `to` (agent id, and the address as typed), `subject`, `body`, `createdAt`, `readAt`,
