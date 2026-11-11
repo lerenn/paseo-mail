@@ -155,14 +155,29 @@ function MailboxPane(props: { theme: Theme; t: T; boxes: Mailbox[]; selected: st
   const { theme, t } = props;
   const live = props.boxes.filter((box) => !box.archived);
   const archived = props.boxes.filter((box) => box.archived);
+  const [open, setOpen] = useState(false);
+  const expanded = open || archived.some((box) => box.agentId === props.selected);
   return (
     <ScrollView contentContainerStyle={{ paddingVertical: 8 }}>
       {live.length > 0 ? <SectionTitle theme={theme} text={t("mailboxes.live")} /> : null}
       {live.map((box) => (
         <MailboxRow key={box.agentId} theme={theme} t={t} box={box} selected={props.selected === box.agentId} onPress={() => props.onSelect(box.agentId)} />
       ))}
-      {archived.length > 0 ? <SectionTitle theme={theme} text={t("mailboxes.archived")} /> : null}
-      {archived.map((box) => (
+      {archived.length > 0 ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded }}
+          accessibilityLabel={t("mailboxes.archived")}
+          onPress={() => setOpen(!expanded)}
+          style={{ flexDirection: "row", alignItems: "center", gap: 4, paddingRight: 16 }}
+        >
+          <View style={{ flex: 1 }}>
+            <SectionTitle theme={theme} text={`${t("mailboxes.archived")} (${archived.length})`} />
+          </View>
+          <Icon name={expanded ? "ChevronDown" : "ChevronRight"} size={14} color={theme.colors.foregroundMuted} />
+        </Pressable>
+      ) : null}
+      {(expanded ? archived : []).map((box) => (
         <MailboxRow key={box.agentId} theme={theme} t={t} box={box} selected={props.selected === box.agentId} onPress={() => props.onSelect(box.agentId)} />
       ))}
     </ScrollView>
