@@ -4,6 +4,7 @@ import { Mailer } from "./server/mailer";
 import { PaseoAdapter, type PaseoApi } from "./server/paseo";
 import { defaultDataDir } from "./server/paths";
 import { Registry } from "./server/registry";
+import { isSidekick, sidekickPrompt } from "./server/sidekick";
 import { MailStore } from "./server/store";
 import { withMailNote } from "./server/system-prompt";
 import { mailTools } from "./server/tools";
@@ -51,6 +52,13 @@ export default function contribute(server: PluginServerContext) {
     server.addHook("agent.open.before", async ({ request }, context) => {
       if (request.purpose === "history") return;
       await enter(context.paseo);
+      if (isSidekick(request.labels)) {
+        // A project's Sidekick gets its mailbox here, on create and on every resume.
+        void quietly("sidekick mailbox", async () => {
+          const name = await mailer.adoptSidekick({ id: request.agentId, workspaceId: request.workspaceId, title: request.title });
+          if (name !== null) setTimeout(() => void quietly("sidekick prompt", () => paseo.send(request.agentId, sidekickPrompt(name))), 5000);
+        });
+      }
       return { ...request, tools: [...request.tools, ...tools] };
     }),
     server.addHook("agent.turn.before", ({ agent }, context) =>

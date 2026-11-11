@@ -88,4 +88,18 @@ describe("contribute", () => {
     expect((await tool("mail_list").execute({ unread_only: true }, toolContext("b"))).text).toContain("Unread: 1");
     await cleanup();
   });
+
+  it("gives a project's Sidekick its mailbox when it opens", async () => {
+    const hooks = new Map<string, Handler>();
+    const server = { addHook: (name: string, handler: Handler) => (hooks.set(name, handler), () => hooks.delete(name)), handle: () => undefined } as unknown as PluginServerContext;
+    const cleanup = contribute(server) as () => Promise<void>;
+    const context = { paseo: fakeApi([]), signal: new AbortController().signal };
+    const request = { agentId: "sk", workspaceId: "w1", provider: "claude", cwd: "/tmp", reason: "create", purpose: "interactive", title: "Playbooks Sidekick · Anyshift", labels: { "playbooks/sidekick": "true" }, tools: [], env: {}, mcpServers: {} };
+    const opened = (await hooks.get("agent.open.before")!({ request }, context)) as { tools: { name: string; execute: (input: unknown, context: unknown) => Promise<{ text: string }> }[] };
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const directory = opened.tools.find((t) => t.name === "mail_directory")!;
+    const text = (await directory.execute({}, { ...context, agent: { id: "w", workspaceId: "w1", parentAgentId: null, provider: "claude", cwd: "/tmp", title: "W" } })).text;
+    expect(text).toContain('anyshift-sidekick roles: sidekick');
+    await cleanup();
+  });
 });

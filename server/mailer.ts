@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { Queue } from "./files";
 import { normalize, type Registry } from "./registry";
+import { SIDEKICK_ROLE, sidekickMailName } from "./sidekick";
 import type { MailStore } from "./store";
 import { UserError, type AgentInfo, type Caller, type Mail, type PaseoPort, type Registration } from "./types";
 
@@ -98,6 +99,26 @@ export class Mailer {
       await this.registry.set(entry);
       return name === null && roles.length === 0 ? null : entry;
     });
+  }
+
+  /**
+   * Gives a project's Sidekick its mailbox: the name `<project-name>-sidekick` (unless it already
+   * has a name) and the role `sidekick`. Returns the name when something changed, null when the
+   * Sidekick was already set up or the name is taken by another live agent.
+   */
+  async adoptSidekick(caller: Caller): Promise<string | null> {
+    const current = this.registry.get(caller.id);
+    if (current?.roles.includes(SIDEKICK_ROLE)) return null;
+    const projectId = caller.workspaceId ? await this.paseo.projectOf(caller.workspaceId).catch(() => null) : null;
+    const wanted = current?.name ?? sidekickMailName(caller.title, projectId);
+    if (wanted === null) return null;
+    try {
+      const entry = await this.register(caller, { name: wanted, roles: [...(current?.roles ?? []), SIDEKICK_ROLE] });
+      return entry?.name ?? null;
+    } catch (error) {
+      if (error instanceof UserError) return null;
+      throw error;
+    }
   }
 
   /** Registered agents that are still live. Dead entries are dropped on the way. */
