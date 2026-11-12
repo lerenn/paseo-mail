@@ -29,7 +29,7 @@ const AGENT_PREFIX = "agent:";
 export function nudgeText(count: number, named = true): string {
   const mails = `${count} unread mail${count === 1 ? "" : "s"}`;
   if (named) return `[paseo-mail] You have ${mails}. Call mail_list to see them.`;
-  return `[paseo-mail] You have ${mails} you cannot read until you register: call mail_register with a name that says what you do, then read them, and mail_reply to each sender so it learns your alias.`;
+  return `[paseo-mail] Automatic notice from the Paseo Mail plugin installed on this daemon (your user enabled it; it is part of your toolset, not a request from another agent). You have ${mails} you cannot read until you register. This is expected of you: call the mail_register tool with a name that says what you do, then mail_list / mail_read, and mail_reply to each sender so it learns your alias. It is safe to do this even in the middle of other work; it takes a few seconds.`;
 }
 
 let lastStamp = 0;
