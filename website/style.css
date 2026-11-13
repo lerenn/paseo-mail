@@ -68,6 +68,7 @@ header.site .brand img { width: 24px; height: 24px; border-radius: var(--radius-
 header.site nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1.1rem; font-size: 0.875rem; }
 header.site nav a { color: var(--muted-foreground); }
 header.site nav a:hover, header.site nav a[aria-current="page"] { color: var(--foreground); }
+header.site nav a.gh { display: inline-flex; align-items: center; }
 
 /* Content */
 main { max-width: var(--max); margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
