@@ -25,6 +25,24 @@ async function world() {
 }
 
 describe("mailboxes", () => {
+  it("marks the whole mailbox seen beyond the list limit, leaving other mailboxes and agent unread state alone", async () => {
+    const { viewer, mailer, store, alice, bob } = await world();
+    await mailer.send(alice, ["bob"], "Incoming", "body");
+    await mailer.send(bob, ["alice"], "Other mailbox", "body");
+    const original = store.inbox("bob-id")[0]!;
+    for (let i = 0; i < 201; i++) await store.create({ ...original, id: `bulk-${i}` });
+    await viewer.setSeen(original.id, true);
+    expect(await viewer.setAllSeen("bob-id")).toBe(201);
+    expect(store.inbox("bob-id").every((mail) => mail.seenAt !== null && mail.readAt === null && mail.bouncedAt === null)).toBe(true);
+    expect(store.inbox("alice-id")[0]!.seenAt).toBeNull();
+    const revision = viewer.revision();
+    expect(await viewer.setAllSeen("bob-id")).toBe(0);
+    expect(viewer.revision()).toBe(revision);
+    const reopened = new MailStore(store.dir);
+    await reopened.init();
+    expect(reopened.inbox("bob-id").every((mail) => mail.seenAt !== null)).toBe(true);
+  });
+
   it("persists mailbox archiving without changing registration, delivery, or agent read state", async () => {
     const { viewer, store, mailer, alice, registry, paseo } = await world();
     const revision = viewer.revision();

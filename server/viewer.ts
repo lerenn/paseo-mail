@@ -112,6 +112,15 @@ export class MailViewer {
     return updated?.seenAt ?? seenAt;
   }
 
+  async setAllSeen(agentId: string): Promise<number> {
+    const ids = this.store.inbox(agentId).filter((mail) => mail.seenAt === null).map((mail) => mail.id);
+    const seenAt = this.now();
+    const updated = await this.store.update(ids, (mail) => {
+      if (mail.seenAt === null) mail.seenAt = seenAt;
+    });
+    return updated.length;
+  }
+
   private async agent(agentId: string): Promise<AgentInfo | null> {
     if (this.gone.has(agentId)) return this.gone.get(agentId)!;
     let agent: AgentInfo | null;

@@ -8,7 +8,7 @@ import { MailStore } from "./server/store";
 import { withMailNote } from "./server/system-prompt";
 import { mailTools } from "./server/tools";
 import { MailViewer } from "./server/viewer";
-import { archiveMailboxRpc, listMailboxesRpc, listMailsRpc, markSeenRpc, revisionRpc, viewMailRpc } from "./shared/contracts";
+import { archiveMailboxRpc, markAllSeenRpc, listMailboxesRpc, listMailsRpc, markSeenRpc, revisionRpc, viewMailRpc } from "./shared/contracts";
 
 export default function contribute(server: PluginServerContext) {
   const dataDir = defaultDataDir();
@@ -90,6 +90,7 @@ export default function contribute(server: PluginServerContext) {
   });
   handle(listMailsRpc, async ({ agentId, limit }) => viewer.list(agentId, limit));
   handle(viewMailRpc, async ({ id }) => viewer.view(id));
+  handle(markAllSeenRpc, async ({ agentId }) => ({ updated: await viewer.setAllSeen(agentId) }));
   handle(markSeenRpc, async ({ id, seen }) => ({ seenAt: await viewer.setSeen(id, seen) }));
 
   return () => {
