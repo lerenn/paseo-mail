@@ -2,7 +2,7 @@ import { useRpc, useTranslation, type PluginScreenProps, type PluginSidebarItemP
 import { Icon, Loading, Markdown, ScrollView, SidebarRow, useToast } from "@getpaseo/plugin/client/ui";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { PanResponder, Pressable, Text, View } from "react-native";
-import { archiveMailboxRpc, listMailsRpc, markSeenRpc, viewMailRpc, type FullMail, type Mailbox, type MailHeader } from "../shared/contracts";
+import { archiveMailboxRpc, markAllSeenRpc, listMailsRpc, markSeenRpc, viewMailRpc, type FullMail, type Mailbox, type MailHeader } from "../shared/contracts";
 import { groupThreads, mailboxLabel, senderLabel, shortDate } from "./format";
 import { messages } from "./i18n";
 import { useMail, type MailStore } from "./mail-store";
@@ -107,7 +107,7 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
   } else {
     const mailboxes = <MailboxPane theme={theme} t={t} boxes={boxes} onChanged={store.refresh} selected={agentId} onSelect={pickBox} />;
     const list = box ? (
-      <MailListPane theme={theme} t={t} box={box} revision={mail.revision} selected={mailId} onSelect={setMailId} />
+      <MailListPane theme={theme} t={t} box={box} onChanged={store.refresh} revision={mail.revision} selected={mailId} onSelect={setMailId} />
     ) : (
       <Empty theme={theme} icon="Inbox" text={t("mails.pick")} />
     );
@@ -273,14 +273,27 @@ function useMails(agentId: string, revision: string | null) {
   return { data: state?.agentId === agentId ? state : null, error };
 }
 
-function MailListPane(props: { theme: Theme; t: T; box: Mailbox; revision: string | null; selected: string | null; onSelect(id: string): void }) {
+function MailListPane(props: { theme: Theme; t: T; box: Mailbox; onChanged(): void; revision: string | null; selected: string | null; onSelect(id: string): void }) {
   const { theme, t } = props;
+  const markAllSeen = useRpc(markAllSeenRpc);
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
   const { data, error } = useMails(props.box.agentId, props.revision);
   const groups = useMemo(() => groupThreads(data?.mails ?? []), [data]);
   if (!data) return error ? <ErrorState theme={theme} t={t} message={error} /> : <Loading />;
   if (data.mails.length === 0) return <Empty theme={theme} icon="Inbox" text={t("mails.empty")} />;
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 12 }}>
+      {props.box.unseen > 0 ? (
+        <View style={{ paddingHorizontal: 14, paddingTop: 8, alignItems: "flex-start" }}>
+          <SmallButton theme={theme} icon="CheckCheck" label={t("mails.markAllSeen")} disabled={busy} onPress={() => {
+            setBusy(true);
+            markAllSeen({ agentId: props.box.agentId })
+              .then(props.onChanged, (cause: unknown) => toast.error(cause instanceof Error ? cause.message : String(cause)))
+              .finally(() => setBusy(false));
+          }} />
+        </View>
+      ) : null}
       <Text style={{ color: theme.colors.foregroundMuted, fontSize: 11, paddingHorizontal: 14, paddingVertical: 8 }}>{t("mails.legend")}</Text>
       {groups.map((group) => (
         <MailRow key={group.threadId} theme={theme} t={t} mail={group.latest} count={group.count} selected={props.selected !== null && group.ids.includes(props.selected)} onPress={() => props.onSelect(group.latest.id)} />
@@ -519,11 +532,13 @@ function IconButton(props: { theme: Theme; icon: string; label: string; onPress(
   );
 }
 
-function SmallButton(props: { theme: Theme; icon: string; label: string; onPress(): void }) {
+function SmallButton(props: { theme: Theme; icon: string; label: string; disabled?: boolean; onPress(): void }) {
   const { theme } = props;
   return (
     <Pressable
       accessibilityRole="button"
+      disabled={props.disabled}
+      accessibilityState={{ disabled: props.disabled ?? false }}
       onPress={props.onPress}
       style={({ hovered, pressed }: { hovered?: boolean; pressed: boolean }) => ({
         flexDirection: "row",

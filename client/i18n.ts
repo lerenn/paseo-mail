@@ -25,6 +25,7 @@ const en = {
     noName: "(no name)",
   },
   mails: {
+    markAllSeen: "Mark all as opened",
     pick: "Pick a mailbox to see its mail.",
     empty: "No mail in this mailbox.",
     legend: "Bold: you have not opened it. Unread: its agent has not read it.",
@@ -77,6 +78,7 @@ export const messages = defineTranslations({
         noName: "(sans nom)",
       },
       mails: {
+        markAllSeen: "Tout marquer comme ouvert",
         pick: "Choisissez une boîte aux lettres pour voir son courrier.",
         empty: "Aucun courrier dans cette boîte.",
         legend: "En gras : vous ne l'avez pas ouvert. Non lu : son agent ne l'a pas lu.",
@@ -122,6 +124,7 @@ export const messages = defineTranslations({
         noName: "（无名称）",
       },
       mails: {
+        markAllSeen: "全部标记为已打开",
         pick: "选择一个邮箱以查看其邮件。",
         empty: "此邮箱中没有邮件。",
         legend: "粗体：你还没有打开。未读：其智能体还没有读。",

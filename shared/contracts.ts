@@ -95,3 +95,10 @@ export const archiveMailboxRpc = defineRpc({
   input: z.object({ agentId: z.string().min(1), archived: z.boolean() }),
   output: z.object({}),
 });
+
+/** Marks every mail currently in one mailbox seen by a human. */
+export const markAllSeenRpc = defineRpc({
+  name: "mails.seen-all",
+  input: z.object({ agentId: z.string().min(1) }),
+  output: z.object({ updated: z.number().int() }),
+});
