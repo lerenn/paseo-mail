@@ -11,6 +11,8 @@ const en = {
   error: "Could not load mail: {{message}}",
   retry: "Retry",
   mailboxes: {
+    archive: "Archive mailbox",
+    restore: "Restore mailbox",
     heading: "Mailboxes",
     live: "Agents",
     archived: "Archived",
@@ -59,6 +61,8 @@ export const messages = defineTranslations({
       error: "Impossible de charger le courrier : {{message}}",
       retry: "Réessayer",
       mailboxes: {
+        archive: "Archiver la boîte",
+        restore: "Restaurer la boîte",
         heading: "Boîtes aux lettres",
         live: "Agents",
         archived: "Archivés",
@@ -106,6 +110,8 @@ export const messages = defineTranslations({
       error: "无法加载邮件：{{message}}",
       retry: "重试",
       mailboxes: {
+        archive: "归档邮箱",
+        restore: "恢复邮箱",
         heading: "邮箱",
         live: "智能体",
         archived: "已归档",

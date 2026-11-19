@@ -8,7 +8,7 @@ import { MailStore } from "./server/store";
 import { withMailNote } from "./server/system-prompt";
 import { mailTools } from "./server/tools";
 import { MailViewer } from "./server/viewer";
-import { listMailboxesRpc, listMailsRpc, markSeenRpc, revisionRpc, viewMailRpc } from "./shared/contracts";
+import { archiveMailboxRpc, listMailboxesRpc, listMailsRpc, markSeenRpc, revisionRpc, viewMailRpc } from "./shared/contracts";
 
 export default function contribute(server: PluginServerContext) {
   const dataDir = defaultDataDir();
@@ -73,12 +73,16 @@ export default function contribute(server: PluginServerContext) {
     ),
   ];
 
-  // The Mail screen's RPCs: read-only, apart from the human-only seen mark.
+  // Mail screen writes affect human viewing preferences only.
   const handle: PluginServerContext["handle"] = (contract, handler) =>
     server.handle(contract, async (input, context) => {
       await enter(context.paseo);
       return handler(input, context);
     });
+  handle(archiveMailboxRpc, async ({ agentId, archived }) => {
+    await viewer.setArchived(agentId, archived);
+    return {};
+  });
   handle(revisionRpc, async () => ({ revision: viewer.revision() }));
   handle(listMailboxesRpc, async () => {
     const revision = viewer.revision();

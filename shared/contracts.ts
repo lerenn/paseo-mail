@@ -16,6 +16,8 @@ export const MailboxSchema = z.object({
   workspaceId: z.string().nullable(),
   /** Archived or gone: its unread mail went back to the senders. */
   archived: z.boolean(),
+  /** Human archive preference; independent of the agent lifecycle. */
+  mailboxArchived: z.boolean().default(false),
   /** Mail its agent has not read (bounced mail excluded). */
   unread: z.number().int(),
   /** Mail no human has opened on the screen. */
@@ -85,4 +87,11 @@ export const markSeenRpc = defineRpc({
   name: "mails.seen",
   input: z.object({ id: z.string().min(1), seen: z.boolean() }),
   output: z.object({ seenAt: z.string().nullable() }),
+});
+
+/** Moves a mailbox in the human viewer only; leaves agent and delivery untouched. */
+export const archiveMailboxRpc = defineRpc({
+  name: "mailboxes.archive",
+  input: z.object({ agentId: z.string().min(1), archived: z.boolean() }),
+  output: z.object({}),
 });

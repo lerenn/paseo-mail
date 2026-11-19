@@ -2,7 +2,7 @@ import { useRpc, useTranslation, type PluginScreenProps, type PluginSidebarItemP
 import { Icon, Loading, Markdown, ScrollView, SidebarRow, useToast } from "@getpaseo/plugin/client/ui";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { PanResponder, Pressable, Text, View } from "react-native";
-import { listMailsRpc, markSeenRpc, viewMailRpc, type FullMail, type Mailbox, type MailHeader } from "../shared/contracts";
+import { archiveMailboxRpc, listMailsRpc, markSeenRpc, viewMailRpc, type FullMail, type Mailbox, type MailHeader } from "../shared/contracts";
 import { groupThreads, mailboxLabel, senderLabel, shortDate } from "./format";
 import { messages } from "./i18n";
 import { useMail, type MailStore } from "./mail-store";
@@ -105,7 +105,7 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
   } else if (boxes.length === 0) {
     body = <Empty theme={theme} icon="Inbox" text={t("mailboxes.empty")} />;
   } else {
-    const mailboxes = <MailboxPane theme={theme} t={t} boxes={boxes} selected={agentId} onSelect={pickBox} />;
+    const mailboxes = <MailboxPane theme={theme} t={t} boxes={boxes} onChanged={store.refresh} selected={agentId} onSelect={pickBox} />;
     const list = box ? (
       <MailListPane theme={theme} t={t} box={box} revision={mail.revision} selected={mailId} onSelect={setMailId} />
     ) : (
@@ -151,17 +151,17 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
 
 // ---------------------------------------------------------------- mailboxes
 
-function MailboxPane(props: { theme: Theme; t: T; boxes: Mailbox[]; selected: string | null; onSelect(agentId: string): void }) {
+function MailboxPane(props: { theme: Theme; t: T; boxes: Mailbox[]; onChanged(): void; selected: string | null; onSelect(agentId: string): void }) {
   const { theme, t } = props;
-  const live = props.boxes.filter((box) => !box.archived);
-  const archived = props.boxes.filter((box) => box.archived);
+  const live = props.boxes.filter((box) => !box.archived && !box.mailboxArchived);
+  const archived = props.boxes.filter((box) => box.archived || box.mailboxArchived);
   const [open, setOpen] = useState(false);
   const expanded = open || archived.some((box) => box.agentId === props.selected);
   return (
     <ScrollView contentContainerStyle={{ paddingVertical: 8 }}>
       {live.length > 0 ? <SectionTitle theme={theme} text={t("mailboxes.live")} /> : null}
       {live.map((box) => (
-        <MailboxRow key={box.agentId} theme={theme} t={t} box={box} selected={props.selected === box.agentId} onPress={() => props.onSelect(box.agentId)} />
+        <MailboxRow key={box.agentId} theme={theme} t={t} box={box} onChanged={props.onChanged} selected={props.selected === box.agentId} onPress={() => props.onSelect(box.agentId)} />
       ))}
       {archived.length > 0 ? (
         <Pressable
@@ -178,18 +178,22 @@ function MailboxPane(props: { theme: Theme; t: T; boxes: Mailbox[]; selected: st
         </Pressable>
       ) : null}
       {(expanded ? archived : []).map((box) => (
-        <MailboxRow key={box.agentId} theme={theme} t={t} box={box} selected={props.selected === box.agentId} onPress={() => props.onSelect(box.agentId)} />
+        <MailboxRow key={box.agentId} theme={theme} t={t} box={box} onChanged={props.onChanged} selected={props.selected === box.agentId} onPress={() => props.onSelect(box.agentId)} />
       ))}
     </ScrollView>
   );
 }
 
-function MailboxRow(props: { theme: Theme; t: T; box: Mailbox; selected: boolean; onPress(): void }) {
+function MailboxRow(props: { theme: Theme; t: T; box: Mailbox; onChanged(): void; selected: boolean; onPress(): void }) {
   const { theme, t, box } = props;
+  const archiveMailbox = useRpc(archiveMailboxRpc);
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
   const label = mailboxLabel(box, t("mailboxes.noName"));
   const muted = box.archived ? theme.colors.foregroundMuted : theme.colors.foreground;
   const details = [box.name && box.title ? box.title : null, ...box.roles.map((role) => `role:${role}`)].filter(Boolean).join(" · ");
   return (
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected: props.selected }}
@@ -199,6 +203,7 @@ function MailboxRow(props: { theme: Theme; t: T; box: Mailbox; selected: boolean
         flexDirection: "row",
         alignItems: "center",
         gap: 8,
+        flex: 1,
         marginHorizontal: 6,
         paddingHorizontal: 10,
         paddingVertical: 8,
@@ -224,6 +229,24 @@ function MailboxRow(props: { theme: Theme; t: T; box: Mailbox; selected: boolean
       </View>
       {box.unread > 0 ? <Count theme={theme} count={box.unread} /> : null}
     </Pressable>
+    {(!box.archived || box.mailboxArchived) ? (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t(box.mailboxArchived ? "mailboxes.restore" : "mailboxes.archive")}
+        accessibilityState={{ disabled: busy }}
+        disabled={busy}
+        style={{ padding: 12, opacity: busy ? 0.5 : 1 }}
+        onPress={() => {
+          setBusy(true);
+          archiveMailbox({ agentId: box.agentId, archived: !box.mailboxArchived })
+            .then(props.onChanged, (cause: unknown) => toast.error(cause instanceof Error ? cause.message : String(cause)))
+            .finally(() => setBusy(false));
+        }}
+      >
+        <Icon name={box.mailboxArchived ? "ArchiveRestore" : "Archive"} size={16} color={theme.colors.foregroundMuted} />
+      </Pressable>
+    ) : null}
+    </View>
   );
 }
 

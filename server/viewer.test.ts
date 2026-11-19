@@ -25,6 +25,27 @@ async function world() {
 }
 
 describe("mailboxes", () => {
+  it("persists mailbox archiving without changing registration, delivery, or agent read state", async () => {
+    const { viewer, store, mailer, alice, registry, paseo } = await world();
+    const revision = viewer.revision();
+    await viewer.setArchived("bob-id", true);
+    expect(viewer.revision()).not.toBe(revision);
+    expect((await viewer.mailboxes()).find((box) => box.agentId === "bob-id")).toMatchObject({ archived: false, mailboxArchived: true });
+    expect(registry.get("bob-id")?.name).toBe("bob");
+    expect((await paseo.agent("bob-id"))?.archived).toBe(false);
+    await mailer.send(alice, ["bob"], "Still delivered", "body");
+    expect(viewer.list("bob-id").mails[0]).toMatchObject({ readAt: null, bouncedAt: null });
+    const reopened = new MailStore(store.dir);
+    await reopened.init();
+    expect(reopened.isMailboxArchived("bob-id")).toBe(true);
+    expect(reopened.inbox("bob-id")).toHaveLength(1);
+    await reopened.setMailboxArchived("bob-id", false);
+    const restored = new MailStore(store.dir);
+    await restored.init();
+    expect(restored.isMailboxArchived("bob-id")).toBe(false);
+    await expect(viewer.setArchived("missing", true)).rejects.toThrow(/no mailbox/);
+  });
+
   it("lists registered agents, empty ones included, with agent-unread and human-unseen counts", async () => {
     const { mailer, viewer, alice } = await world();
     await mailer.send(alice, ["bob"], "One", "1");
