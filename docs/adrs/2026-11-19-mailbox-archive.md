@@ -20,7 +20,8 @@ The `mailboxes.archive` RPC sets a human viewing preference, persisted atomicall
 of agent IDs in `mail/mailboxes.json`. It shares the store's write queue and revision counter.
 Expose `mailboxArchived` separately from the existing agent lifecycle `archived` flag.
 
-This extends the screen writes permitted by `2026-11-10-mail-screen.md`: archive preferences,
+This supersedes `2026-11-10-mail-screen.md` only in its restriction on screen writes; all other
+screen decisions remain in force. Archive preferences,
 like seen marks, affect human viewing only. Delivery, nudges, registration and agent lifecycle
 remain independent. New mail does not automatically restore the mailbox.
 

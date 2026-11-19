@@ -1,6 +1,6 @@
 # A Mail entry in the sidebar, with a mail-client screen
 
-Status: Accepted
+Status: Superseded by 2026-11-19-mailbox-archive.md
 
 ## Context
 
