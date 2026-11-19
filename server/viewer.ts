@@ -67,6 +67,7 @@ export class MailViewer {
           roles: registration?.roles ?? [],
           workspaceId: registration?.workspaceId ?? agent?.workspaceId ?? null,
           archived: !agent || agent.archived,
+          mailboxArchived: this.store.isMailboxArchived(agentId),
           unread: inbox.filter((mail) => mail.readAt === null && mail.bouncedAt === null).length,
           unseen: inbox.filter((mail) => mail.seenAt === null).length,
           bounced: inbox.filter((mail) => mail.bouncedAt !== null).length,
@@ -77,6 +78,11 @@ export class MailViewer {
     );
     const label = (box: Mailbox) => (box.name ?? box.title ?? box.agentId).toLowerCase();
     return boxes.sort((a, b) => Number(a.archived) - Number(b.archived) || label(a).localeCompare(label(b)) || a.agentId.localeCompare(b.agentId));
+  }
+
+  async setArchived(agentId: string, archived: boolean): Promise<void> {
+    if (!(await this.mailboxes()).some((box) => box.agentId === agentId)) throw new UserError(`no mailbox "${agentId}"`);
+    await this.store.setMailboxArchived(agentId, archived);
   }
 
   list(agentId: string, limit = 200): { mails: MailHeader[]; total: number } {

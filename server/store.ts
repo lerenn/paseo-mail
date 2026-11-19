@@ -7,6 +7,7 @@ import { MailSchema, type Mail } from "./types";
 export class MailStore {
   private readonly mails = new Map<string, Mail>();
   private readonly queue = new Queue();
+  private archivedBoxes = new Set<string>();
   /** Bumped on every change, so a viewer can poll cheaply for "anything new?". */
   private changes = 0;
 
@@ -23,7 +24,15 @@ export class MailStore {
 
   async init(): Promise<void> {
     await mkdir(this.dir, { recursive: true });
+    try {
+      const ids: unknown = JSON.parse(await readFile(path.join(this.dir, "mailboxes.json"), "utf8"));
+      if (!Array.isArray(ids) || !ids.every((id) => typeof id === "string")) throw new Error("Invalid mailbox archive data");
+      this.archivedBoxes = new Set(ids);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
     for (const name of await readdir(this.dir)) {
+      if (name === "mailboxes.json") continue;
       if (!name.endsWith(".json")) continue;
       try {
         const mail = MailSchema.parse(JSON.parse(await readFile(path.join(this.dir, name), "utf8")));
@@ -77,6 +86,22 @@ export class MailStore {
       }
       if (updated.length > 0) this.changes += 1;
       return updated;
+    });
+  }
+
+  isMailboxArchived(agentId: string): boolean {
+    return this.archivedBoxes.has(agentId);
+  }
+
+  setMailboxArchived(agentId: string, archived: boolean): Promise<void> {
+    return this.queue.run(async () => {
+      if (this.archivedBoxes.has(agentId) === archived) return;
+      const next = new Set(this.archivedBoxes);
+      if (archived) next.add(agentId);
+      else next.delete(agentId);
+      await writeAtomic(path.join(this.dir, "mailboxes.json"), `${JSON.stringify([...next])}\n`);
+      this.archivedBoxes = next;
+      this.changes += 1;
     });
   }
 

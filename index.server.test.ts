@@ -61,7 +61,7 @@ describe("contribute", () => {
     } as unknown as PluginServerContext;
     const cleanup = contribute(server) as () => Promise<void>;
     expect([...hooks.keys()].sort()).toEqual(["agent.archive.after", "agent.create.before", "agent.open.before", "agent.turn.after", "agent.turn.before"]);
-    expect([...rpcs.keys()].sort()).toEqual(["mail.revision", "mailboxes.list", "mails.list", "mails.seen", "mails.view"]);
+    expect([...rpcs.keys()].sort()).toEqual(["mail.revision", "mailboxes.archive", "mailboxes.list", "mails.list", "mails.seen", "mails.view"]);
 
     const sent: { id: string; text: string }[] = [];
     const context = { paseo: fakeApi(sent), signal: new AbortController().signal };
