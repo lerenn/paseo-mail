@@ -8,7 +8,7 @@ description: Publish the latest released version of this plugin to the official 
 The listing on paseo.sh/plugins is the registry `getpaseo/plugins`. Git updates are **manual**:
 the registry never scans our repository. An update is a new submission issue naming the release
 tag; the bot opens a "Review Paseo Mail" PR and a reviewer merges it. Registry id:
-`lerenn/paseo-mail` (record `plugins/lerenn/paseo-mail.json`).
+`lerenn/mail` (record `plugins/lerenn/mail.json`; the GitHub repo is still `lerenn/paseo-mail`).
 
 Opening an issue is public and outward-facing: show the user the final body and get a yes
 before step 5 (unless they already said to go ahead).
@@ -27,7 +27,7 @@ in `package.json` on `main` has no tag yet, stop: the release is not out.
 ## 2. Read what is listed now
 
 ```bash
-gh api repos/getpaseo/plugins/contents/plugins/lerenn/paseo-mail.json -q .content | base64 -d
+gh api repos/getpaseo/plugins/contents/plugins/lerenn/mail.json -q .content | base64 -d
 ```
 
 If this returns 404 the plugin is not listed yet: this is a first submission, so skip the
@@ -72,7 +72,7 @@ https://github.com/lerenn/paseo-mail/tree/<latest-tag>
 - [ ] Extras
 - [ ] Utils
 
-Update of the existing `lerenn/paseo-mail` listing (or, for a first submission, "First submission of `lerenn/paseo-mail`")
+Update of the existing `lerenn/mail` listing (or, for a first submission, "First submission of `lerenn/mail`")
  (currently <listed-tag>, `<listed-commit>`)
 to release <latest-tag>, commit `<latest-commit>`. The requirement is still Paseo `<requirements.paseo>`.
 <Say if the manifest, icon and media changed or not.>
