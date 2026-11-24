@@ -143,7 +143,7 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.surface0 }}>
-      <Header theme={theme} t={t} />
+      <Header theme={theme} t={t} compact={layout.compact} />
       {panes ? null : bar}
       {body}
     </View>
@@ -480,20 +480,20 @@ function PaneBar(props: { theme: Theme; t: T; label: string; onBack?: () => void
   );
 }
 
-function Header(props: { theme: Theme; t: T }) {
-  const { theme, t } = props;
+function Header(props: { theme: Theme; t: T; compact: boolean }) {
+  const { theme, t, compact } = props;
+  // Same metrics as the Kubernetes Workspaces header, so the icon and title sit at the same place.
+  const pad = compact ? 16 : 28;
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 14, paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>
-      <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: "#3b6fe0", alignItems: "center", justifyContent: "center" }}>
-        <Icon name="Mail" size={22} color="#ffffff" />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text numberOfLines={1} style={{ color: theme.colors.foreground, fontSize: 18, fontWeight: "700" }}>
-          Paseo Mail
-        </Text>
-        <Text numberOfLines={2} style={{ color: theme.colors.foregroundMuted, fontSize: 12 }}>
-          {t("tagline")}
-        </Text>
+    <View style={{ paddingHorizontal: pad, paddingTop: pad, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
+        <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: theme.colors.accent, alignItems: "center", justifyContent: "center" }}>
+          <Icon name="Mail" size={26} color={theme.colors.accentForeground} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={{ color: theme.colors.foreground, fontSize: compact ? 20 : 24, fontWeight: "700" }}>Paseo Mail</Text>
+          <Text style={{ color: theme.colors.foregroundMuted, fontSize: 13 }}>{t("tagline")}</Text>
+        </View>
       </View>
     </View>
   );
