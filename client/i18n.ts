@@ -6,6 +6,7 @@ import { defineTranslations } from "@getpaseo/plugin/client";
  */
 const en = {
   title: "Mail",
+  tagline: "Durable mailboxes for Paseo: agents write to each other instead of interrupting.",
   refresh: "Refresh mail",
   back: "Back",
   error: "Could not load mail: {{message}}",
@@ -57,6 +58,7 @@ export const messages = defineTranslations({
     en,
     fr: {
       title: "Courrier",
+      tagline: "Des boîtes aux lettres durables pour Paseo : les agents s’écrivent au lieu de s’interrompre.",
       refresh: "Actualiser le courrier",
       back: "Retour",
       error: "Impossible de charger le courrier : {{message}}",
@@ -107,6 +109,7 @@ export const messages = defineTranslations({
     },
     "zh-CN": {
       title: "邮件",
+      tagline: "Paseo 的持久化邮箱：智能体互相写信，而不是互相打断。",
       refresh: "刷新邮件",
       back: "返回",
       error: "无法加载邮件：{{message}}",
