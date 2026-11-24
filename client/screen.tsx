@@ -85,7 +85,7 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
     setMailId(null);
   };
 
-  // No heading of our own: the host's top bar already shows "Mail". A slim bar holds the
+  // A branded header sits on top; a slim bar holds the
   // refresh (and, on compact layouts, the back button and the open mailbox's name).
   const bar = (
     <PaneBar
@@ -143,6 +143,7 @@ export function MailScreen(props: PluginScreenProps & { store: MailStore }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.surface0 }}>
+      <Header theme={theme} t={t} />
       {panes ? null : bar}
       {body}
     </View>
@@ -475,6 +476,25 @@ function PaneBar(props: { theme: Theme; t: T; label: string; onBack?: () => void
       {props.error ? (
         <Text style={{ color: theme.colors.statusDanger, fontSize: 11, paddingHorizontal: 12, paddingBottom: 6 }}>{t("error", { message: props.error })}</Text>
       ) : null}
+    </View>
+  );
+}
+
+function Header(props: { theme: Theme; t: T }) {
+  const { theme, t } = props;
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 14, paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>
+      <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: "#3b6fe0", alignItems: "center", justifyContent: "center" }}>
+        <Icon name="Mail" size={22} color="#ffffff" />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text numberOfLines={1} style={{ color: theme.colors.foreground, fontSize: 18, fontWeight: "700" }}>
+          Paseo Mail
+        </Text>
+        <Text numberOfLines={2} style={{ color: theme.colors.foregroundMuted, fontSize: 12 }}>
+          {t("tagline")}
+        </Text>
+      </View>
     </View>
   );
 }
