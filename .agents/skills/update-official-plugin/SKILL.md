@@ -7,7 +7,7 @@ description: Publish the latest released version of this plugin to the official 
 
 The listing on paseo.sh/plugins is the registry `getpaseo/plugins`. Git updates are **manual**:
 the registry never scans our repository. An update is a new submission issue naming the release
-tag; the bot opens a "Review Paseo Mail" PR and a reviewer merges it. Registry id:
+tag; the bot opens a "Review Mail" PR and a reviewer merges it. Registry id:
 `lerenn/mail` (record `plugins/lerenn/mail.json`; the GitHub repo is still `lerenn/paseo-mail`).
 
 Opening an issue is public and outward-facing: show the user the final body and get a yes
@@ -38,7 +38,7 @@ superseding logic if nothing is pending. Otherwise note `artifact.tag` and `arti
 
 ```bash
 gh issue list --repo getpaseo/plugins --author lerenn --state open
-gh pr list --repo getpaseo/plugins --state open --search "Paseo Mail"
+gh pr list --repo getpaseo/plugins --state open --search "Mail"
 ```
 
 Any open, unmerged Paseo Mail submission is superseded by the new one: list it in the new
@@ -94,7 +94,7 @@ permissions note from the actual diff; the reviewer checks it against the artifa
 ## 5. Open the issue
 
 ```bash
-gh issue create --repo getpaseo/plugins --label submission --title "Paseo Mail" --body-file <file>
+gh issue create --repo getpaseo/plugins --label submission --title "Mail" --body-file <file>
 ```
 
 The title is the plugin's name. Do not add a Git ref other than the tag in the Source URL.
@@ -111,6 +111,6 @@ gh pr close <pr> --repo getpaseo/plugins --comment "Superseded by #<new>."
 ## 7. Report and follow up
 
 Give the user the issue link. Within about 30 minutes the bot opens the review PR
-(`gh pr list --repo getpaseo/plugins --search "Paseo Mail"`); the reviewer then tags the
+(`gh pr list --repo getpaseo/plugins --search "Mail"`); the reviewer then tags the
 author in the outcome. If a PR exists but nothing happens for a day, say so rather than
 re-submitting. Do not open a second issue for the same tag.

@@ -1,6 +1,6 @@
 {
   "id": "paseo-mail",
-  "name": "Paseo Mail",
+  "name": "Mail",
   "description": "Agent-to-agent mail for Paseo: durable mailboxes, with a short nudge when the recipient is idle. Agents send each other mail instead of interrupting each other.",
   "icon": "assets/icon.png",
   "translations": {
