@@ -480,12 +480,15 @@ function PaneBar(props: { theme: Theme; t: T; label: string; onBack?: () => void
   );
 }
 
+// One tab for now; more will follow.
+const TABS = [{ id: "mailboxes", label: "mailboxes.heading", icon: "Inbox" }] as const;
+
 function Header(props: { theme: Theme; t: T; compact: boolean }) {
   const { theme, t, compact } = props;
   // Same metrics as the Kubernetes Workspaces header, so the icon and title sit at the same place.
   const pad = compact ? 16 : 28;
   return (
-    <View style={{ paddingHorizontal: pad, paddingTop: pad, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>
+    <View style={{ paddingHorizontal: pad, paddingTop: pad, gap: 14, borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
         <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: theme.colors.accent, alignItems: "center", justifyContent: "center" }}>
           <Icon name="Mail" size={26} color={theme.colors.accentForeground} />
@@ -494,6 +497,23 @@ function Header(props: { theme: Theme; t: T; compact: boolean }) {
           <Text style={{ color: theme.colors.foreground, fontSize: compact ? 20 : 24, fontWeight: "700" }}>Paseo Mail</Text>
           <Text style={{ color: theme.colors.foregroundMuted, fontSize: 13 }}>{t("tagline")}</Text>
         </View>
+      </View>
+      <View style={{ flexDirection: "row", gap: 4 }}>
+        {TABS.map((tab) => {
+          const active = tab.id === "mailboxes";
+          return (
+            <Pressable
+              key={tab.id}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={t(tab.label)}
+              style={{ flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: active ? theme.colors.accent : "transparent" }}
+            >
+              <Icon name={tab.icon} size={15} color={active ? theme.colors.accent : theme.colors.foregroundMuted} />
+              <Text style={{ color: active ? theme.colors.foreground : theme.colors.foregroundMuted, fontSize: 14, fontWeight: "600" }}>{t(tab.label)}</Text>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );
