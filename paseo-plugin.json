@@ -13,5 +13,5 @@
   },
   "requirements": { "paseo": ">=0.15.0" },
   "build": [["npm", "ci", "--omit=dev"]],
-  "media": ["assets/mail-screen.png"]
+  "media": ["assets/card.png", "assets/mail-flow.png", "assets/mail-screen.png"]
 }

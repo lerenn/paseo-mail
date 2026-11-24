@@ -1,0 +1,38 @@
+<!-- Flow of one mail, for the listing overview. Render it from assets/ with resvg (npx @resvg/resvg-js-cli, fit width 1600) to mail-flow.png -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560" font-family="Liberation Sans">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b7bfcc"/></marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#7fa6f5"/></marker>
+  <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c8606c"/></marker>
+  </defs>
+  <rect width="1600" height="560" fill="#14171d"/>
+  <g fill="#232833" stroke="#4a5060" stroke-width="3">
+    <rect x="40" y="170" width="320" height="170" rx="22"/>
+    <rect x="440" y="170" width="320" height="170" rx="22"/>
+    <rect x="840" y="170" width="320" height="170" rx="22"/>
+    <rect x="1240" y="170" width="320" height="170" rx="22"/>
+  </g>
+  <rect x="440" y="170" width="320" height="170" rx="22" fill="#232833" stroke="#2F6BF2" stroke-width="5"/>
+  <g fill="#ffffff" text-anchor="middle" font-weight="bold" font-size="38">
+    <text x="200" y="240">Sender</text><text x="600" y="240">Mailbox</text>
+    <text x="1000" y="240">Recipient</text><text x="1400" y="240">Reply</text>
+  </g>
+  <g fill="#b7bfcc" text-anchor="middle" font-size="26">
+    <text x="200" y="285">mail_send</text><text x="200" y="320">keeps working</text>
+    <text x="600" y="285">stored on disk</text><text x="600" y="320">survives restarts</text>
+    <text x="1000" y="285">mail_list</text><text x="1000" y="320">mail_read</text>
+    <text x="1400" y="285">mail_reply</text><text x="1400" y="320">same thread</text>
+  </g>
+  <g stroke="#b7bfcc" stroke-width="4" fill="none">
+    <path d="M365 255 H432" marker-end="url(#a)"/>
+    <path d="M765 255 H832" stroke="#7fa6f5" marker-end="url(#b)"/>
+    <path d="M1165 255 H1232" marker-end="url(#a)"/>
+  </g>
+  <text x="800" y="110" fill="#7fa6f5" font-size="30" text-anchor="middle" font-weight="bold">[paseo-mail] You have 1 unread mail.</text>
+  <text x="800" y="145" fill="#7fa6f5" font-size="24" text-anchor="middle">one line, only when the recipient is idle</text>
+  <g fill="none" stroke="#c8606c" stroke-width="4" stroke-dasharray="14 10">
+    <path d="M200 345 V440 H1000 V352" marker-end="url(#r)"/>
+  </g>
+  <text x="600" y="495" fill="#e58a93" font-size="28" text-anchor="middle">Direct prompt: lands mid-turn and derails the recipient</text>
+  <text x="600" y="530" fill="#8a919e" font-size="24" text-anchor="middle">kept for urgent cases only</text>
+</svg>
