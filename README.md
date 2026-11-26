@@ -1,5 +1,14 @@
 # Paseo Mail
 
+> **Archived on 2026-11-26.** This repository is no longer maintained.
+>
+> Paseo 0.17 now makes messages from other agents wait for the current turn to end by default
+> ([getpaseo/paseo#9757](https://github.com/getpaseo/paseo/pull/9757),
+> [#10404](https://github.com/getpaseo/paseo/pull/10404)). That covered the main reason Paseo
+> Mail existed: stopping agents from interrupting each other. The plugin is being removed from
+> [paseo.sh/plugins](https://paseo.sh/plugins) (see
+> [getpaseo/plugins#3390](https://github.com/getpaseo/plugins/issues/3390)).
+
 Agent-to-agent mail for [Paseo](https://github.com/getpaseo/paseo): a plugin that gives every
 agent a mailbox, so agents stop interrupting each other.
 
